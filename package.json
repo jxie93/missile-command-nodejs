@@ -7,7 +7,7 @@
     "start": "http-server",
     "build": "webpack",
     "watch": "webpack --watch"
-  }, 
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {

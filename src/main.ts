@@ -3,13 +3,15 @@ import { Preload } from "./scenes/preload";
 import { Boot } from "./scenes/boot";
 import { Game } from "./scenes/game";
 
+var scaleRatio = window.devicePixelRatio / 3;
+// usage - myAsset.scale.setTo(scaleRatio, scaleRatio);
 
 class Main extends Phaser.Game {
   constructor() {
     const config: GameConfig = {
       type: Phaser.AUTO,
-      width: 800,
-      height: 600,
+      width: window.innerWidth,// * window.devicePixelRatio,
+      height: window.innerHeight,// * window.devicePixelRatio,
     };
     super(config);
 

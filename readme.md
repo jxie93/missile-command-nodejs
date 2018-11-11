@@ -37,4 +37,7 @@ npm start
 ```
 then browse to http://localhost:8080
 
+OR
+
+Install https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer for VS Code, then click 'Go Live'
 

@@ -10,8 +10,9 @@ class Main extends Phaser.Game {
   constructor() {
     const config: GameConfig = {
       type: Phaser.AUTO,
-      width: window.innerWidth,// * window.devicePixelRatio,
+      width: window.innerWidth * 0.5625,// * window.devicePixelRatio,
       height: window.innerHeight,// * window.devicePixelRatio,
+      parent: "root"
     };
     super(config);
 

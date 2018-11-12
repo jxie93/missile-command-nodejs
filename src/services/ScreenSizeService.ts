@@ -1,5 +1,8 @@
 export class ScreenSizeService {
 
+    public static canvasWidth?: number
+    public static canvasHeight?: number
+
     public static screenWidth(): number {
         return window.innerWidth
     }

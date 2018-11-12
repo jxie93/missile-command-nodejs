@@ -1,4 +1,5 @@
 import * as Phaser from "phaser";
+import { ScreenSizeService } from "../services/ScreenSizeService";
 
 export class Preload extends Phaser.Scene {
   init() {
@@ -6,7 +7,12 @@ export class Preload extends Phaser.Scene {
   }
 
   preload () {
-    console.log("Load things necessary for Game scene");
+    console.log("Load things necessary for create");
+  }
+
+  create() {
+    console.log("Preloading create");
     this.scene.start("game");
   }
+
 }

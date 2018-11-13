@@ -39,7 +39,7 @@ export class Game extends Phaser.Scene {
     OjectKey.background).setScale(downsampleRatio)
 
     this.enemyBase = new Ship(this.add.sprite(0, 0, OjectKey.enemyBase), 0 ,0)
-    this.playerBase = new Ship(this.add.sprite(ScreenSizeService.canvasWidth!, ScreenSizeService.canvasHeight!, OjectKey.playerBase), 1, 1)
+    this.playerBase = new Ship(this.add.sprite(ScreenSizeService.canvasWidth, ScreenSizeService.canvasHeight, OjectKey.playerBase), 1, 1)
 
     let enemyBaseWidth = this.enemyBase!.sprite!.displayWidth
     this.enemyBase!.move(enemyBaseWidth/2, enemyBaseWidth/2)

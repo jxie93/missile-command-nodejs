@@ -1,18 +1,19 @@
 import * as Phaser from "phaser";
-import { Preload } from "./scenes/preload";
-import { Boot } from "./scenes/boot";
-import { Game } from "./scenes/game";
+import { Preload } from "./controllers/preload";
+import { Boot } from "./controllers/boot";
+import { Game } from "./controllers/game";
 import { ScreenSizeService } from "./services/ScreenSizeService";
 
-// var scaleRatio = window.devicePixelRatio / 3;
-// usage - myAsset.scale.setTo(scaleRatio, scaleRatio);
+export const downsampleRatio = 1/3 //global downsampling multiplier for using 3x assets
+
+//Entry points for the game
 
 class Main extends Phaser.Game {
   constructor() {
     const config: GameConfig = {
       type: Phaser.AUTO,
-      width: 1080,// * window.devicePixelRatio,
-      height: 1920,// * window.devicePixelRatio,
+      width: 1920,// * window.devicePixelRatio,
+      height: 1080,// * window.devicePixelRatio,
       parent: "root"
     };
     super(config);

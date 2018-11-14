@@ -20,10 +20,17 @@ class Main extends Phaser.Game {
       type: Phaser.AUTO,
       width: canvasWidth,// * window.devicePixelRatio,
       height: canvasHeight,// * window.devicePixelRatio,
-      parent: "root"
+      parent: "root"//,
+      // physics: {
+      //   default: 'impact',
+      //   impact: {
+      //       gravity: 200,
+      //       debug: true
+      //   }
+      // }
     };
     super(config);
-
+    
     // this.scene.add("boot", Boot, false);
     this.scene.add("preload", Preload, false);
     this.scene.add("game", Game, false);

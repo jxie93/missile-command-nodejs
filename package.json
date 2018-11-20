@@ -1,5 +1,5 @@
 {
-  "name": "phaser3-typescript-template",
+  "name": "missile-command-phaser3",
   "version": "1.0.0",
   "description": "",
   "main": "./dist/main.js",

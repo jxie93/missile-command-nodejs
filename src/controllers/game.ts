@@ -78,20 +78,29 @@ export class Game extends Phaser.Scene {
 
   }
 
+  canFire: boolean = false
   update() {
     // console.log("Update")
-    let mousePointer = this.input.activePointer
-    if (mousePointer.isDown) {
-      console.log("pointer clicked " + mousePointer.downX + "x" + mousePointer.downY)
+    let cursor = this.input.activePointer
+    if (cursor.isDown) {
       // var missile = new Projectile(this.add.sprite(0, 0, ObjectKey.playerMissile), 0.5, 0.5)
       
+      if (this.canFire) {
+        return
+      }
+
+      console.log("pointer clicked " + cursor.downX + "x" + cursor.downY)
+
       var missile = new Projectile(
         this.impact.add.image(500, 500, ObjectKey.playerMissile),
-        mousePointer.downX, mousePointer.downY
-        
-        )
-      missile.setAcceleration(100, 0) //initial
+        cursor.downX, cursor.downY)
 
+      // this.physics.moveTo(missile.asset!, cursor.downX, cursor.downY)
+      this.canFire = true
+    }
+
+    if (cursor.justUp) {
+      this.canFire = false
     }
 
   }

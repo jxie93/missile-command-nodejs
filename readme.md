@@ -15,7 +15,8 @@ git remote set-url origin https://github.com/your-user/your-game.git
 
 ## Installing
 ```sh
-npm i
+npm install
+npm install webpack@4.8.3
 ```
 ### Manual maintenance
 With this repo you'll need to download & replace the type definitions (located in [/src/phaser.d.ts](https://github.com/maakep/phaser3-typescript-template/tree/master/src)) with the ones from [typescript docs](https://github.com/photonstorm/phaser3-docs/tree/master/typescript) to get the latest type definitions, or create a solution to do it automatically. 

@@ -16,11 +16,11 @@ export enum ObjectKey {
 let gameSceneConfig: Phaser.Scenes.Settings.Config = {
   key: 'game',
   physics: {
-      impact: {
+      arcade: {
         gravity: 0,
         setBounds: {
-            width: ScreenSizeService.canvasWidth,
-            height: ScreenSizeService.canvasHeight,
+           width: ScreenSizeService.canvasWidth,
+           height: ScreenSizeService.canvasHeight,
         }
     }
   }
@@ -83,7 +83,6 @@ export class Game extends Phaser.Scene {
     // console.log("Update")
     let cursor = this.input.activePointer
     if (cursor.isDown) {
-      // var missile = new Projectile(this.add.sprite(0, 0, ObjectKey.playerMissile), 0.5, 0.5)
       
       if (this.canFire) {
         return
@@ -92,10 +91,9 @@ export class Game extends Phaser.Scene {
       console.log("pointer clicked " + cursor.downX + "x" + cursor.downY)
 
       var missile = new Projectile(
-        this.impact.add.image(500, 500, ObjectKey.playerMissile),
-        cursor.downX, cursor.downY)
+        this.physics.add.image(500, 500, ObjectKey.playerMissile),
+        cursor.downX, cursor.downY, 1000.0)
 
-      // this.physics.moveTo(missile.asset!, cursor.downX, cursor.downY)
       this.canFire = true
     }
 

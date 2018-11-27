@@ -5,6 +5,7 @@ import { downsampleRatio } from "../main";
 import { Ship } from "../models/Ship";
 import { Projectile } from "../models/Projectile";
 import { ProjectileTrackingService } from "../services/ProjectileTrackingService";
+import { InitialisationService } from "../services/InitialisationService";
 
 export enum ObjectKey {
   playerBase = "playerBase",
@@ -32,8 +33,6 @@ export class Game extends Phaser.Scene {
   enemyBase?: Ship
   playerBase?: Ship
 
-  // currentProjectiles?: Projectile[] = new Array()
-
   constructor() {
     super(gameSceneConfig)
   }
@@ -43,14 +42,7 @@ export class Game extends Phaser.Scene {
   }
 
   preload() {
-    console.log("this config " + this.physics)
-
-    this.load.setBaseURL("/assets")
-    this.load.image(ObjectKey.background, "bg-1.png")
-    this.load.image(ObjectKey.playerBase, "player_base.png")
-    this.load.image(ObjectKey.enemyBase, "enemy_base.png")
-    this.load.image(ObjectKey.enemyMissile, "enemy_missile_basic.png")
-    this.load.image(ObjectKey.playerMissile, "player_missile_basic.png")
+    InitialisationService.instance.loadAssetsForScene(this)
   }
 
   setupBaseObjects() {
@@ -73,50 +65,39 @@ export class Game extends Phaser.Scene {
       this.playerBase!.setAngle(-45)
   }
 
-  create() {
+  onProjectileRemoved(projectile: Projectile) {
+    projectile.stop()
+  }
+
+  create() {    //init
+
     console.log("Create")
-    //TODO
-    //init
     this.setupBaseObjects()
+    ProjectileTrackingService.instance.onProjectileRemoved = this.onProjectileRemoved
 
   }
 
   canFire: boolean = false
-  // missile?: Projectile
-  //TODO use ProjectileTrackingService
-
   update() {
     // console.log("Update")
     let cursor = this.input.activePointer
-    if (cursor.isDown) {
+    if (cursor.isDown && cursor.downX != 0 && cursor.downY != 0) {
       
       if (this.canFire) {
         return
       } 
 
-      console.log("pointer clicked " + cursor.downX + "x" + cursor.downY)
-
       var currenMissile = new Projectile(
-        this.physics.add.image(this.playerBase!.getPosition().x, this.playerBase!.getPosition().y, ObjectKey.enemyMissile),
+        this.physics.add.image(this.playerBase!.getPosition().x, this.playerBase!.getPosition().y, ObjectKey.playerMissile),
         cursor.downX, cursor.downY, 1000.0)
 
       ProjectileTrackingService.instance.addProjectile(currenMissile)
 
-        // this.currentProjectiles!.push(currenMissile)
-        // console.log("WORKING - missile tracker " + this.currentProjectiles)
-
       this.canFire = true
     }
 
-
-
-      ProjectileTrackingService.instance.removeOutOfBoundsProjectiles()
-
-    // if (this.missile) {
-    //   if (this.missile!.hasReachedDestination()) {
-    //     this.missile!.stop()
-    //   }
-    // }
+    ProjectileTrackingService.instance.removeOutOfBoundsProjectiles()
+    ProjectileTrackingService.instance.removeExpiredProjectiles()
 
     if (cursor.justUp) {
       this.canFire = false

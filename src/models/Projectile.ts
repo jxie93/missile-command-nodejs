@@ -42,7 +42,7 @@ export class Projectile {
     hasReachedDestination(error: number = 5.0): boolean {
         //TODO some error margin dependent on accel factor?
         let deltaX = Math.abs(this.asset!.x - this.destination.x)
-        let deltaY = Math.abs(this.asset!.y - this.destination.y)     
+        let deltaY = Math.abs(this.asset!.y - this.destination.y)   
         return deltaX <= 5 || deltaY <= 5
     }
 

@@ -1,8 +1,10 @@
 import { downsampleRatio } from "../main";
 import { ScreenSizeService } from "../services/ScreenSizeService";
+import { ObjectKey } from "../controllers/game";
 
 export class Projectile {
 
+    scene?: Phaser.Scene
     asset?: Phaser.Physics.Arcade.Image
     assetOffset: number = 90
 
@@ -12,7 +14,13 @@ export class Projectile {
     accelerationFactor: number = 1.0 //defined magnitude
     vector: Phaser.Math.Vector2 = new Phaser.Math.Vector2(0, 0) //normalised
 
-    constructor(asset: Phaser.Physics.Arcade.Image, destinationX: number, destinationY: number, accelModifier: number) {
+    trailEmitter?: Phaser.GameObjects.Particles.ParticleEmitter
+    explosionEmitter?: Phaser.GameObjects.Particles.ParticleEmitter
+
+    constructor(scene: Phaser.Scene, asset: Phaser.Physics.Arcade.Image, 
+        destinationX: number, destinationY: number, accelModifier: number,
+        trailParticleAsset: ObjectKey, explosionParticleAsset: ObjectKey) {
+        this.scene = scene
         this.asset = asset
         asset.setScale(downsampleRatio)
 
@@ -22,6 +30,49 @@ export class Projectile {
 
         this.setAngle(this.angleToDestination())
         this.accelerateToDestination()
+
+        this.asset!.setOrigin(0.5, 1)
+        this.createTrailEmitter(trailParticleAsset)
+        this.createExplosionEmitter(explosionParticleAsset)
+
+        this.setHitBox()
+    }
+
+    private setHitBox() {
+        //TODO get a good fit
+        var longestSide = this.asset!.width
+        if (this.asset!.height > longestSide) {
+            longestSide = this.asset!.height
+        }
+        this.asset!.setSize(longestSide, longestSide)
+    }
+
+    //creates and attaches a trail particle system that follows the asset
+    private createTrailEmitter(assetKey: ObjectKey) {
+        var particles = this.scene!.add.particles(assetKey)
+        this.trailEmitter = particles.createEmitter({
+            lifespan: 500,
+            speed: { min: 0, max: 500 },
+            angle: this.getAngle(),
+            scale: { start: 1, end: 0 },
+            quantity: 1,
+            blendMode: Phaser.BlendModes.ADD
+          })
+        this.trailEmitter!.startFollow(this.asset!)
+    }
+
+    //creates and attaches a explosion particle system, but inactive 
+    private createExplosionEmitter(assetKey: ObjectKey) {
+        var particles = this.scene!.add.particles(assetKey)
+        this.explosionEmitter = particles.createEmitter({
+            lifespan: 300,
+            speed: { min: 0, max: 500 },
+            scale: { start: 0.5, end: 0.001 },
+            quantity: 1,
+            blendMode: Phaser.BlendModes.ADD
+          })
+        this.explosionEmitter!.active = false
+        this.explosionEmitter!.startFollow(this.asset!)
     }
 
     private angleToDestination(): number { //from source (x1,y1) to destination (x2, y2)
@@ -35,7 +86,6 @@ export class Projectile {
         let vec = new Phaser.Math.Vector2(this.destination.x - this.source.x, this.destination.y - this.source.y)
         vec.normalize()
         this.vector = vec
-        // this.asset!.setVelocity(unitDeltaX*this.accelerationFactor, unitDeltaY*this.accelerationFactor)
         this.asset!.setAcceleration(vec.x*this.accelerationFactor, vec.y*this.accelerationFactor)
     } 
 
@@ -68,11 +118,31 @@ export class Projectile {
     stop() {
         this.setAcceleration(0, 0)
         this.setVelocity(0, 0)
+        this.explode()
+        this.stopTrailEmitter()
     }
 
-    setAngle(angle: number) {
-        //offset because initial asset is pointing upwards
+    stopTrailEmitter() {
+        if (this.trailEmitter) {
+            this.trailEmitter!.explode(0, this.asset!.x, this.asset!.y)
+        }
+    }
+
+    explode() {
+        this.asset!.setVisible(false)
+        if (this.explosionEmitter) {
+            this.explosionEmitter!.active = true
+            this.explosionEmitter!.explode(50, this.asset!.x, this.asset!.y)
+        }
+        this.asset!.destroy(true)
+    }
+
+    setAngle(angle: number) {         //offset because initial asset is pointing upwards
         this.asset!.angle = angle + this.assetOffset
+    }
+
+    getAngle(): number {
+        return this.asset!.angle + this.assetOffset
     }
 
 }

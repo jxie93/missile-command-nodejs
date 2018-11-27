@@ -6,13 +6,17 @@ import { Ship } from "../models/Ship";
 import { Projectile } from "../models/Projectile";
 import { ProjectileTrackingService } from "../services/ProjectileTrackingService";
 import { InitialisationService } from "../services/InitialisationService";
+import { AIService } from "../services/AIService";
 
 export enum ObjectKey {
   playerBase = "playerBase",
   enemyBase = "enemyBase",
   enemyMissile = "enemyMissile",
   playerMissile = "playerMissile",
-  background = "background"
+  background = "background",
+  playerMissileTrail = "playerMissileTrail",
+  enemyMissileTrail = "enemyMissileTrail",
+  explosionParticle1 = "explosionParticle1"
 }
 
 let gameSceneConfig: Phaser.Scenes.Settings.Config = {
@@ -20,6 +24,7 @@ let gameSceneConfig: Phaser.Scenes.Settings.Config = {
   physics: {
       arcade: {
         gravity: 0,
+        debug: true,
         setBounds: {
            width: ScreenSizeService.canvasWidth,
            height: ScreenSizeService.canvasHeight,
@@ -41,7 +46,7 @@ export class Game extends Phaser.Scene {
     console.log("Initializing game");
   }
 
-  preload() {
+  preload() { //pre-init
     InitialisationService.instance.loadAssetsForScene(this)
   }
 
@@ -70,11 +75,12 @@ export class Game extends Phaser.Scene {
   }
 
   create() {    //init
-
     console.log("Create")
     this.setupBaseObjects()
     ProjectileTrackingService.instance.onProjectileRemoved = this.onProjectileRemoved
+    AIService.instance.init(this, this.playerBase!, this.enemyBase!)
 
+    
   }
 
   canFire: boolean = false
@@ -87,9 +93,9 @@ export class Game extends Phaser.Scene {
         return
       } 
 
-      var currenMissile = new Projectile(
+      var currenMissile = new Projectile(this,
         this.physics.add.image(this.playerBase!.getPosition().x, this.playerBase!.getPosition().y, ObjectKey.playerMissile),
-        cursor.downX, cursor.downY, 1000.0)
+        cursor.downX, cursor.downY, 1000.0, ObjectKey.playerMissileTrail, ObjectKey.explosionParticle1)
 
       ProjectileTrackingService.instance.addProjectile(currenMissile)
 

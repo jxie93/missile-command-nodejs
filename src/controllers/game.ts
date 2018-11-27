@@ -52,29 +52,31 @@ export class Game extends Phaser.Scene {
     this.load.image(ObjectKey.playerMissile, "player_missile_basic.png")
   }
 
-  create() {
-    console.log("Create")
-
+  setupBaseObjects() {
     let centerX = ScreenSizeService.canvasWidth!/2
     let centerY = ScreenSizeService.canvasHeight!/2
+    this.add.image(centerX, centerY, 
+      ObjectKey.background).setScale(downsampleRatio)
+  
+      this.enemyBase = new Ship(this.add.sprite(0, 0, ObjectKey.enemyBase), 0 ,0)
+      this.playerBase = new Ship(this.add.sprite(ScreenSizeService.canvasWidth, ScreenSizeService.canvasHeight, ObjectKey.playerBase), 1, 1)
+  
+      let enemyBaseWidth = this.enemyBase!.sprite!.displayWidth
+      this.enemyBase!.move(enemyBaseWidth/2, enemyBaseWidth/2)
+      this.enemyBase!.setOrigin(0.5, 0.5)
+      this.enemyBase!.setAngle(-45)
+  
+      let playerBaseWidth = this.playerBase!.sprite!.displayWidth
+      this.playerBase!.move(-playerBaseWidth/2, -playerBaseWidth/2)
+      this.playerBase!.setOrigin(0.5, 0.5)
+      this.playerBase!.setAngle(-45)
+  }
 
+  create() {
+    console.log("Create")
     //TODO
     //init
-    this.add.image(centerX, centerY, 
-    ObjectKey.background).setScale(downsampleRatio)
-
-    this.enemyBase = new Ship(this.add.sprite(0, 0, ObjectKey.enemyBase), 0 ,0)
-    this.playerBase = new Ship(this.add.sprite(ScreenSizeService.canvasWidth, ScreenSizeService.canvasHeight, ObjectKey.playerBase), 1, 1)
-
-    let enemyBaseWidth = this.enemyBase!.sprite!.displayWidth
-    this.enemyBase!.move(enemyBaseWidth/2, enemyBaseWidth/2)
-    this.enemyBase!.setOrigin(0.5, 0.5)
-    this.enemyBase!.setAngle(-45)
-
-    let playerBaseWidth = this.playerBase!.sprite!.displayWidth
-    this.playerBase!.move(-playerBaseWidth/2, -playerBaseWidth/2)
-    this.playerBase!.setOrigin(0.5, 0.5)
-    this.playerBase!.setAngle(-45)
+    this.setupBaseObjects()
 
   }
 
@@ -91,7 +93,7 @@ export class Game extends Phaser.Scene {
       console.log("pointer clicked " + cursor.downX + "x" + cursor.downY)
 
       var missile = new Projectile(
-        this.physics.add.image(500, 500, ObjectKey.playerMissile),
+        this.physics.add.image(this.playerBase!.getPosition().x, this.playerBase!.getPosition().y, ObjectKey.enemyMissile),
         cursor.downX, cursor.downY, 1000.0)
 
       this.canFire = true

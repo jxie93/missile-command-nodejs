@@ -17,6 +17,10 @@ export class BaseObject {
         this.sprite!.y += y
     }
 
+    getPosition(): Phaser.Geom.Point {
+        return new Phaser.Geom.Point(this.sprite!.x, this.sprite!.y)
+    }
+
     setOrigin(x: number, y: number) {
         this.sprite!.setOrigin(x, y)
     }

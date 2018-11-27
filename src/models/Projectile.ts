@@ -5,43 +5,37 @@ export class Projectile {
     asset?: Phaser.Physics.Arcade.Image
     assetOffset: number = 90
 
-    sourceX: number = 0
-    sourceY: number = 0
+    source: Phaser.Geom.Point = new Phaser.Geom.Point(0, 0)
+    destination: Phaser.Geom.Point = new Phaser.Geom.Point(0, 0)
 
-    destinationX: number = 0
-    destinationY: number = 0
-
-    accelerationFactor: number = 1.0
+    accelerationFactor: number = 1.0 //defined magnitude
+    vector: Phaser.Math.Vector2 = new Phaser.Math.Vector2(0, 0) //normalised
 
     constructor(asset: Phaser.Physics.Arcade.Image, destinationX: number, destinationY: number, accelModifier: number) {
         this.asset = asset
         asset.setScale(downsampleRatio)
-        this.sourceX = asset.x
-        this.sourceY = asset.y
-        this.destinationX = destinationX
-        this.destinationY = destinationY
+
+        this.source = new Phaser.Geom.Point(asset.x, asset.y)
+        this.destination = new Phaser.Geom.Point(destinationX, destinationY)
         this.accelerationFactor = accelModifier
 
         this.setAngle(this.angleToDestination())
         this.accelerateToDestination()
     }
 
-
     private angleToDestination(): number { //from source (x1,y1) to destination (x2, y2)
-        let sourcePoint = new Phaser.Geom.Point(this.sourceX, this.sourceY)
-        let destinationPoint = new Phaser.Geom.Point(this.destinationX, this.destinationY)
+        let sourcePoint = new Phaser.Geom.Point(this.source.x, this.source.y)
+        let destinationPoint = new Phaser.Geom.Point(this.destination.x, this.destination.y)
         let angleBetweenPoints = Phaser.Math.Angle.BetweenPoints(sourcePoint, destinationPoint)  
         return angleBetweenPoints * 180 / Math.PI
     }
 
     private accelerateToDestination() {
-        let deltaX = this.destinationX - this.sourceX
-        let deltaY = this.destinationY - this.sourceY
-        let magnitude = Math.sqrt(deltaX*deltaX + deltaY*deltaY)
-        let unitDeltaX = deltaX/magnitude
-        let unitDeltaY = deltaY/magnitude
+        let vec = new Phaser.Math.Vector2(this.destination.x - this.source.x, this.destination.y - this.source.y)
+        vec.normalize()
+        this.vector = vec
         // this.asset!.setVelocity(unitDeltaX*this.accelerationFactor, unitDeltaY*this.accelerationFactor)
-        this.asset!.setAcceleration(unitDeltaX*this.accelerationFactor, unitDeltaY*this.accelerationFactor)
+        this.asset!.setAcceleration(vec.x*this.accelerationFactor, vec.y*this.accelerationFactor)
     } 
 
     setVelocity(dX: number = 0, dY: number = 0) {

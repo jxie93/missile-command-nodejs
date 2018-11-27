@@ -4,6 +4,7 @@ import { BaseObject } from "../models/BaseObject";
 import { downsampleRatio } from "../main";
 import { Ship } from "../models/Ship";
 import { Projectile } from "../models/Projectile";
+import { ProjectileTrackingService } from "../services/ProjectileTrackingService";
 
 export enum ObjectKey {
   playerBase = "playerBase",
@@ -98,7 +99,8 @@ export class Game extends Phaser.Scene {
       var currenMissile = new Projectile(
         this.physics.add.image(this.playerBase!.getPosition().x, this.playerBase!.getPosition().y, ObjectKey.enemyMissile),
         cursor.downX, cursor.downY, 1000.0)
-        // this.missile = currenMissile
+
+      ProjectileTrackingService.instance.addProjectile(currenMissile)
 
         // this.currentProjectiles!.push(currenMissile)
         // console.log("WORKING - missile tracker " + this.currentProjectiles)
@@ -107,6 +109,8 @@ export class Game extends Phaser.Scene {
     }
 
 
+
+      ProjectileTrackingService.instance.removeOutOfBoundsProjectiles()
 
     // if (this.missile) {
     //   if (this.missile!.hasReachedDestination()) {

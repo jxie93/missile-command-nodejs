@@ -46,10 +46,10 @@ export class Projectile {
         return deltaX <= 5 || deltaY <= 5
     }
 
-    isInPlayfield(): boolean {
-        let checkX = this.asset!.x >= 0 || this.asset!.x <= ScreenSizeService.canvasWidth
-        let checkY = this.asset!.y >= 0 || this.asset!.y <= ScreenSizeService.canvasHeight
-        return checkX || checkY
+    isOutOfBounds(): boolean {
+        let containedInX = this.asset!.x >= 0 && this.asset!.x <= ScreenSizeService.canvasWidth
+        let containedInY = this.asset!.y >= 0 && this.asset!.y <= ScreenSizeService.canvasHeight
+        return !containedInX || !containedInY
     }
 
     setVelocity(dX: number = 0, dY: number = 0) {

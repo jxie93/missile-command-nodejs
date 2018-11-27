@@ -31,7 +31,7 @@ export class Game extends Phaser.Scene {
   enemyBase?: Ship
   playerBase?: Ship
 
-  testSprite?: Phaser.GameObjects.Sprite
+  // currentProjectiles?: Projectile[] = new Array()
 
   constructor() {
     super(gameSceneConfig)
@@ -81,6 +81,9 @@ export class Game extends Phaser.Scene {
   }
 
   canFire: boolean = false
+  // missile?: Projectile
+  //TODO use ProjectileTrackingService
+
   update() {
     // console.log("Update")
     let cursor = this.input.activePointer
@@ -88,16 +91,28 @@ export class Game extends Phaser.Scene {
       
       if (this.canFire) {
         return
-      }
+      } 
 
       console.log("pointer clicked " + cursor.downX + "x" + cursor.downY)
 
-      var missile = new Projectile(
+      var currenMissile = new Projectile(
         this.physics.add.image(this.playerBase!.getPosition().x, this.playerBase!.getPosition().y, ObjectKey.enemyMissile),
         cursor.downX, cursor.downY, 1000.0)
+        // this.missile = currenMissile
+
+        // this.currentProjectiles!.push(currenMissile)
+        // console.log("WORKING - missile tracker " + this.currentProjectiles)
 
       this.canFire = true
     }
+
+
+
+    // if (this.missile) {
+    //   if (this.missile!.hasReachedDestination()) {
+    //     this.missile!.stop()
+    //   }
+    // }
 
     if (cursor.justUp) {
       this.canFire = false

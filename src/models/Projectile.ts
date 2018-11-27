@@ -1,4 +1,5 @@
 import { downsampleRatio } from "../main";
+import { ScreenSizeService } from "../services/ScreenSizeService";
 
 export class Projectile {
 
@@ -38,6 +39,19 @@ export class Projectile {
         this.asset!.setAcceleration(vec.x*this.accelerationFactor, vec.y*this.accelerationFactor)
     } 
 
+    hasReachedDestination(error: number = 5.0): boolean {
+        //TODO some error margin dependent on accel factor?
+        let deltaX = Math.abs(this.asset!.x - this.destination.x)
+        let deltaY = Math.abs(this.asset!.y - this.destination.y)     
+        return deltaX <= 5 || deltaY <= 5
+    }
+
+    isInPlayfield(): boolean {
+        let checkX = this.asset!.x >= 0 || this.asset!.x <= ScreenSizeService.canvasWidth
+        let checkY = this.asset!.y >= 0 || this.asset!.y <= ScreenSizeService.canvasHeight
+        return checkX || checkY
+    }
+
     setVelocity(dX: number = 0, dY: number = 0) {
         this.asset!.setVelocity(dX, dY)
     }
@@ -49,6 +63,11 @@ export class Projectile {
     move(x: number, y: number) {
         this.asset!.x += x
         this.asset!.y += y
+    }
+
+    stop() {
+        this.setAcceleration(0, 0)
+        this.setVelocity(0, 0)
     }
 
     setAngle(angle: number) {

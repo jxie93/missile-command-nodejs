@@ -1,4 +1,4 @@
-import { Projectile} from "../models/Projectile";
+import { Projectile } from "../models/Projectile2";
 import { PlayerEntity } from "./AIService";
 
 export class ProjectileTrackingService {
@@ -20,16 +20,16 @@ export class ProjectileTrackingService {
         this.scene = scene
     }
 
-    private getAllCurrentProjectilesAsObjects(): Phaser.Physics.Arcade.Image[] {
-        var assets = new Array()
-        let currentProjectiles = (this.currentProjectiles != null) ? this.currentProjectiles : []
-        for (var i = 0; i<currentProjectiles.length; i++) {
-            if (currentProjectiles[i].asset) {
-                assets.push(currentProjectiles[i].asset)
-            }
-        }
-        return assets
-    }
+    // private getAllCurrentProjectilesAsObjects(): Phaser.Physics.Arcade.Image[] {
+    //     var assets = new Array()
+    //     let currentProjectiles = (this.currentProjectiles != null) ? this.currentProjectiles : []
+    //     for (var i = 0; i<currentProjectiles.length; i++) {
+    //         if (currentProjectiles[i].asset) {
+    //             assets.push(currentProjectiles[i].asset)
+    //         }
+    //     }
+    //     return assets
+    // }
 
     addProjectile(projectile: Projectile) {
         if (this.currentProjectiles) {

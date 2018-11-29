@@ -1,19 +1,12 @@
+import { ProjectileType } from "./Projectile";
+import { PlayerEntity } from "../services/AIService";
+import { ObjectKey } from "../controllers/game";
 import { downsampleRatio } from "../main";
 import { ScreenSizeService } from "../services/ScreenSizeService";
-import { ObjectKey } from "../controllers/game";
-import { PlayerEntity } from "../services/AIService";
 
-export enum ProjectileType {
-    //TODO
-}
+export class Projectile extends Phaser.Physics.Arcade.Image {
+    angleOffset: number = 90
 
-export class Projectile2 {
-
-    scene?: Phaser.Scene
-    asset?: Phaser.Physics.Arcade.Image
-    assetAngleOffset: number = 90
-
-    type?: ProjectileType //TODO
     owner?: PlayerEntity
 
     source: Phaser.Geom.Point = new Phaser.Geom.Point(0, 0)
@@ -26,21 +19,22 @@ export class Projectile2 {
     explosionLinger?: number //in ms
     explosionRadiusMultiplier?: number //blast radius
 
-    constructor(scene: Phaser.Scene, asset: Phaser.Physics.Arcade.Image, 
+    constructor(scene: Phaser.Scene, sourceX: number, sourceY: number, assetKey: string, 
         destinationX: number, destinationY: number, owner: PlayerEntity, accelModifier?: number,
         trailParticleAsset?: ObjectKey, explosionParticleAsset?: ObjectKey, explosionLinger?: number, blastMultiplier?: number) {
-        this.scene = scene
-        this.asset = asset
+        super(scene, sourceX, sourceY, assetKey)
+
+        scene.physics.add.existing(this)
+
         this.owner = owner
         this.explosionLinger = explosionLinger
         this.explosionRadiusMultiplier = blastMultiplier
-        asset.setScale(downsampleRatio)
-
-        this.source = new Phaser.Geom.Point(asset.x, asset.y)
+        this.setScale(downsampleRatio)
+        this.source = new Phaser.Geom.Point(sourceX, sourceY)
         this.destination = new Phaser.Geom.Point(destinationX, destinationY)
         this.accelerationFactor = accelModifier!
 
-        this.setAngle(this.angleToDestination())
+        this.setAngleWithOffset(this.angleToDestination())
         this.accelerateToDestination()
 
         this.createTrailEmitter(trailParticleAsset!)
@@ -51,9 +45,9 @@ export class Projectile2 {
 
     private setHitBox(multiplier?: number) {
         //TODO get a good fit
-        var longestSide = this.asset!.width
-        if (this.asset!.height > longestSide) {
-            longestSide = this.asset!.height
+        var longestSide = this.width
+        if (this.height > longestSide) {
+            longestSide = this.height
         }
 
         let finalMultiplier = (multiplier != null) ? multiplier : 1
@@ -61,9 +55,9 @@ export class Projectile2 {
 
         let finalRadius = longestSide*radiusModifier
         if (this.vector) {
-            let offsetX = -this.asset!.height/2 *radiusModifier //base offset and modifier 
-            let offsetY = -this.asset!.width/2 *radiusModifier // base offset and modifier
-            this.asset!.setCircle(finalRadius*finalMultiplier, offsetX*finalMultiplier, offsetY*finalMultiplier)
+            let offsetX = -this.height/2 *radiusModifier //base offset and modifier 
+            let offsetY = -this.width/2 *radiusModifier // base offset and modifier
+            this.setCircle(finalRadius*finalMultiplier, offsetX*finalMultiplier, offsetY*finalMultiplier)
         }
     }
 
@@ -72,13 +66,13 @@ export class Projectile2 {
         var particles = this.scene!.add.particles(assetKey)
         this.trailEmitter = particles.createEmitter({
             lifespan: 1000,
-            speed: { min: 0, max: 500 },
-            angle: this.getAngle(),
-            scale: { start: 0.25, end: 0 },
-            quantity: 1,
-            blendMode: Phaser.BlendModes.ADD,
-          })
-        this.trailEmitter!.startFollow(this.asset!)
+                speed: { min: 0, max: 500 },
+                angle: this.getAngleWithOffset(),
+                scale: { start: 0.25, end: 0 },
+                quantity: 1,
+                blendMode: Phaser.BlendModes.ADD,
+            })
+        this.trailEmitter!.startFollow(this)
         //TODO offset
         // this.trailEmitter!.followOffset = this.vector!.scale(-40)
     }
@@ -94,7 +88,7 @@ export class Projectile2 {
             blendMode: Phaser.BlendModes.ADD
           })
         this.explosionEmitter!.active = false
-        this.explosionEmitter!.startFollow(this.asset!)
+        this.explosionEmitter!.startFollow(this)
     }
 
     private angleToDestination(): number { //from source (x1,y1) to destination (x2, y2)
@@ -108,33 +102,25 @@ export class Projectile2 {
         let vec = new Phaser.Math.Vector2(this.destination.x - this.source.x, this.destination.y - this.source.y)
         vec.normalize()
         this.vector = vec
-        this.asset!.setAcceleration(vec.x*this.accelerationFactor, vec.y*this.accelerationFactor)
+        this.setAcceleration(vec.x*this.accelerationFactor, vec.y*this.accelerationFactor)
     } 
 
     hasReachedDestination(error: number = 3.0): boolean {
         //TODO some error margin dependent on accel factor?
-        let deltaX = Math.abs(this.asset!.x - this.destination.x)
-        let deltaY = Math.abs(this.asset!.y - this.destination.y)   
+        let deltaX = Math.abs(this.x - this.destination.x)
+        let deltaY = Math.abs(this.y - this.destination.y)   
         return deltaX <= error || deltaY <= error
     }
 
     isOutOfBounds(): boolean {
-        let containedInX = this.asset!.x >= 0 && this.asset!.x <= ScreenSizeService.canvasWidth
-        let containedInY = this.asset!.y >= 0 && this.asset!.y <= ScreenSizeService.canvasHeight
+        let containedInX = this.x >= 0 && this.x <= ScreenSizeService.canvasWidth
+        let containedInY = this.y >= 0 && this.y <= ScreenSizeService.canvasHeight
         return !containedInX || !containedInY
     }
 
-    setVelocity(dX: number = 0, dY: number = 0) {
-        this.asset!.setVelocity(dX, dY)
-    }
-
-    setAcceleration(dX: number = 0, dY: number = 0) {
-        this.asset!.setAcceleration(dX, dY)
-    }
-
     move(x: number, y: number) {
-        this.asset!.x += x
-        this.asset!.y += y
+        this.x += x
+        this.y += y
     }
 
     stop() {
@@ -146,31 +132,30 @@ export class Projectile2 {
 
     stopTrailEmitter() {
         if (this.trailEmitter) {
-            this.trailEmitter!.explode(0, this.asset!.x, this.asset!.y)
+            this.trailEmitter!.explode(0, this.x, this.y)
         }
     }
 
     explode() {
         this.setHitBox(this.explosionRadiusMultiplier)
 
-        this.asset!.setVisible(false)
+        this.setVisible(false)
         if (this.explosionEmitter) {
             this.explosionEmitter!.active = true
-            this.explosionEmitter!.explode(50, this.asset!.x, this.asset!.y)
+            this.explosionEmitter!.explode(50, this.x, this.y)
         }
         //explosion lingers for small time
         let waitTime = (this.explosionLinger != null) ? this.explosionLinger : 0
         setTimeout(() => {
-            this.asset!.destroy(true)
+            this.destroy(true)
         }, waitTime);
     }
 
-    setAngle(angle: number) {         //offset because initial asset is pointing upwards
-        this.asset!.angle = angle + this.assetAngleOffset
+    setAngleWithOffset(angle: number) {
+        this.angle = angle + this.angleOffset
     }
 
-    getAngle(): number {
-        return this.asset!.angle + this.assetAngleOffset
+    getAngleWithOffset(): number {
+        return this.angle + this.angleOffset
     }
-
 }

@@ -1,5 +1,5 @@
 import { BaseObject } from "../models/BaseObject";
-import { Projectile } from "../models/Projectile";
+import { Projectile } from "../models/Projectile2";
 import { ObjectKey } from "../controllers/game";
 import { ProjectileTrackingService } from "./ProjectileTrackingService";
 
@@ -47,12 +47,11 @@ export class AIService {
         let randomDivergence = Math.random()*maxDivergence
         let varianceSign = Math.random() > 0.5 ? 1 : -1 //which direction to diverge in
         let finalDivergeance = randomDivergence * varianceSign
-    
-        var enemyMissile = new Projectile(this.scene!,
-          this.scene!.physics.add.image(this.enemyBase!.getPosition().x, this.enemyBase!.getPosition().y, ObjectKey.enemyMissile),
-          targetDestination.x + finalDivergeance, targetDestination.y + finalDivergeance, PlayerEntity.enemy,
-          100.0, ObjectKey.enemyMissileTrail, ObjectKey.explosionParticle1, 250, 2)
 
+        var enemyMissile = new Projectile(this.scene!, this.enemyBase!.getPosition().x, this.enemyBase!.getPosition().y, ObjectKey.enemyMissile, 
+        targetDestination.x + finalDivergeance, targetDestination.y + finalDivergeance, PlayerEntity.enemy,
+        100.0, ObjectKey.enemyMissileTrail, ObjectKey.explosionParticle1, 250, 2)
+        this.scene!.add.existing(enemyMissile)
         
         ProjectileTrackingService.instance.addProjectile(enemyMissile)
     }

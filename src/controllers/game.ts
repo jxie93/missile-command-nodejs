@@ -3,7 +3,7 @@ import { ScreenSizeService } from "../services/ScreenSizeService";
 import { BaseObject } from "../models/BaseObject";
 import { downsampleRatio } from "../main";
 import { Ship } from "../models/Ship";
-import { Projectile } from "../models/Projectile";
+import { Projectile } from "../models/Projectile2";
 import { ProjectileTrackingService } from "../services/ProjectileTrackingService";
 import { InitialisationService } from "../services/InitialisationService";
 import { AIService, PlayerEntity } from "../services/AIService";
@@ -86,7 +86,6 @@ export class Game extends Phaser.Scene {
 
     AIService.instance.init(this, this.playerBase!, this.enemyBase!)
 
-    // this.physics.add.collider()
   }
 
   canFire: boolean = false
@@ -98,9 +97,10 @@ export class Game extends Phaser.Scene {
         return
       } 
 
-      var currenMissile = new Projectile(this,
-        this.physics.add.image(this.playerBase!.getPosition().x, this.playerBase!.getPosition().y, ObjectKey.playerMissile),
-        cursor.downX, cursor.downY, PlayerEntity.player, 1000.0, ObjectKey.playerMissileTrail, ObjectKey.explosionParticle1, 250, 3)
+      var currenMissile = new Projectile(this, this.playerBase!.getPosition().x, this.playerBase!.getPosition().y, ObjectKey.playerMissile,
+      cursor.downX, cursor.downY, PlayerEntity.player, 1000.0, ObjectKey.playerMissileTrail, ObjectKey.explosionParticle1, 250, 3)
+
+      this.add.existing(currenMissile)
 
       ProjectileTrackingService.instance.addProjectile(currenMissile)
 

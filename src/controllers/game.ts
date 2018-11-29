@@ -88,14 +88,13 @@ export class Game extends Phaser.Scene {
     // console.log("Update")
     let cursor = this.input.activePointer
     if (cursor.isDown && cursor.downX != 0 && cursor.downY != 0) {
-      
       if (this.canFire) {
         return
       } 
 
       var currenMissile = new Projectile(this,
         this.physics.add.image(this.playerBase!.getPosition().x, this.playerBase!.getPosition().y, ObjectKey.playerMissile),
-        cursor.downX, cursor.downY, PlayerEntity.player, 1000.0, ObjectKey.playerMissileTrail, ObjectKey.explosionParticle1,)
+        cursor.downX, cursor.downY, PlayerEntity.player, 1000.0, ObjectKey.playerMissileTrail, ObjectKey.explosionParticle1, 250, 3)
 
       ProjectileTrackingService.instance.addProjectile(currenMissile)
 

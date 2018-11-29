@@ -23,15 +23,17 @@ export class Projectile {
 
     trailEmitter?: Phaser.GameObjects.Particles.ParticleEmitter
     explosionEmitter?: Phaser.GameObjects.Particles.ParticleEmitter
-    explosionLinger?: number
+    explosionLinger?: number //in ms
+    explosionRadiusMultiplier?: number //blast radius
 
     constructor(scene: Phaser.Scene, asset: Phaser.Physics.Arcade.Image, 
         destinationX: number, destinationY: number, owner: PlayerEntity, accelModifier?: number,
-        trailParticleAsset?: ObjectKey, explosionParticleAsset?: ObjectKey, explosionLinger?: number) {
+        trailParticleAsset?: ObjectKey, explosionParticleAsset?: ObjectKey, explosionLinger?: number, blastMultiplier?: number) {
         this.scene = scene
         this.asset = asset
         this.owner = owner
         this.explosionLinger = explosionLinger
+        this.explosionRadiusMultiplier = blastMultiplier
         asset.setScale(downsampleRatio)
 
         this.source = new Phaser.Geom.Point(asset.x, asset.y)
@@ -41,25 +43,27 @@ export class Projectile {
         this.setAngle(this.angleToDestination())
         this.accelerateToDestination()
 
-        // this.asset!.setOrigin(0.5, 1)
         this.createTrailEmitter(trailParticleAsset!)
         this.createExplosionEmitter(explosionParticleAsset!)
 
         this.setHitBox()
     }
 
-    private setHitBox(radius?: number) {
+    private setHitBox(multiplier?: number) {
         //TODO get a good fit
         var longestSide = this.asset!.width
         if (this.asset!.height > longestSide) {
             longestSide = this.asset!.height
         }
-        // console.log("WORKING origins? " + this.asset!.originX + "," + this.asset!.originY + " display " + this.asset!.displayOriginX + "," + this.asset!.displayOriginY)
-        // this.assetOffset
-        if (radius) {
-            this.asset!.setCircle(longestSide)
-        } else {
-            this.asset!.setCircle(longestSide)
+
+        let finalMultiplier = (multiplier != null) ? multiplier : 1
+        let radiusModifier = 0.5 //half all values
+
+        let finalRadius = longestSide*radiusModifier
+        if (this.vector) {
+            let offsetX = -this.asset!.height/2 *radiusModifier //base offset and modifier 
+            let offsetY = -this.asset!.width/2 *radiusModifier // base offset and modifier
+            this.asset!.setCircle(finalRadius*finalMultiplier, offsetX*finalMultiplier, offsetY*finalMultiplier)
         }
     }
 
@@ -75,7 +79,8 @@ export class Projectile {
             blendMode: Phaser.BlendModes.ADD,
           })
         this.trailEmitter!.startFollow(this.asset!)
-        this.trailEmitter!.followOffset = this.vector!.scale(-40)
+        //TODO offset
+        // this.trailEmitter!.followOffset = this.vector!.scale(-40)
     }
 
     //creates and attaches a explosion particle system, but inactive 
@@ -110,7 +115,7 @@ export class Projectile {
         //TODO some error margin dependent on accel factor?
         let deltaX = Math.abs(this.asset!.x - this.destination.x)
         let deltaY = Math.abs(this.asset!.y - this.destination.y)   
-        return deltaX <= 5 || deltaY <= 5
+        return deltaX <= error || deltaY <= error
     }
 
     isOutOfBounds(): boolean {
@@ -146,18 +151,16 @@ export class Projectile {
     }
 
     explode() {
+        this.setHitBox(this.explosionRadiusMultiplier)
+
         this.asset!.setVisible(false)
         if (this.explosionEmitter) {
             this.explosionEmitter!.active = true
             this.explosionEmitter!.explode(50, this.asset!.x, this.asset!.y)
         }
         //explosion lingers for small time
-        let waitTime = 0
-        if (this.explosionLinger) {
-            waitTime = this.explosionLinger
-        }
+        let waitTime = (this.explosionLinger != null) ? this.explosionLinger : 0
         setTimeout(() => {
-            this.setHitBox(500) //TODO
             this.asset!.destroy(true)
         }, waitTime);
     }

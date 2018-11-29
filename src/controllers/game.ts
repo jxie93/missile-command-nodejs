@@ -97,6 +97,7 @@ export class Game extends Phaser.Scene {
       this.canFire = true
     }
 
+    ProjectileTrackingService.instance.updateProjectiles()
     ProjectileTrackingService.instance.removeOutOfBoundsProjectiles()
     ProjectileTrackingService.instance.removeExpiredProjectiles(true)
 

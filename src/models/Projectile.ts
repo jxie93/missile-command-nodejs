@@ -18,6 +18,8 @@ export class Projectile extends Phaser.Physics.Arcade.Image {
     vector: Phaser.Math.Vector2 = new Phaser.Math.Vector2(0, 0) //normalised
 
     trailEmitter?: Phaser.GameObjects.Particles.ParticleEmitter
+    trailAmount: number = 100 //initial trail amount
+    distanceTravelled: number = 0
     explosionEmitter?: Phaser.GameObjects.Particles.ParticleEmitter
     explosionLinger?: number //in ms
     explosionRadiusMultiplier?: number //blast radius
@@ -69,7 +71,7 @@ export class Projectile extends Phaser.Physics.Arcade.Image {
     private createTrailEmitter(assetKey: ObjectKey) {
         var particles = this.scene!.add.particles(assetKey)
         this.trailEmitter = particles.createEmitter({
-            lifespan: 1000,
+            lifespan: this.trailAmount,
                 speed: { min: 0, max: 500 },
                 angle: this.getAngleWithOffset(),
                 scale: { start: 0.25, end: 0 },
@@ -78,7 +80,20 @@ export class Projectile extends Phaser.Physics.Arcade.Image {
             })
         this.trailEmitter!.startFollow(this)
         //TODO offset
-        // this.trailEmitter!.followOffset = this.vector!.scale(-40)
+        this.trailEmitter!.followOffset = this.vector!.scale(-40)
+    }
+
+    updateDistanceTravelled() {
+        let deltaX = Math.abs(this.x - this.source.x)
+        let deltaY = Math.abs(this.y - this.source.y)
+        this.distanceTravelled = Math.sqrt(deltaX*deltaX + deltaY*deltaY)
+    }
+
+    increaseTrail() {
+        if (this.trailEmitter) {
+            let amount = this.distanceTravelled*2
+            this.trailEmitter.setLifespan(amount)
+        }
     }
 
     //creates and attaches a explosion particle system, but inactive 

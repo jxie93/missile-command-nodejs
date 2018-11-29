@@ -61,6 +61,14 @@ export class ProjectileTrackingService {
         }
     }
 
+    updateProjectiles() {
+        for (var i = 0; i<this.getCurrentProjectiles().length; i++) {
+            let projectile = this.currentProjectiles![i]
+            projectile.increaseTrail()
+            projectile.updateDistanceTravelled()
+        }
+    }
+
     removeOutOfBoundsProjectiles() {
         for (var i = 0; i<this.getCurrentProjectiles().length; i++) {
             let projectile = this.currentProjectiles![i]

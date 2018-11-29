@@ -3,7 +3,7 @@ import { ScreenSizeService } from "../services/ScreenSizeService";
 import { BaseObject } from "../models/BaseObject";
 import { downsampleRatio } from "../main";
 import { Ship } from "../models/Ship";
-import { Projectile } from "../models/Projectile2";
+import { Projectile } from "../models/Projectile";
 import { ProjectileTrackingService } from "../services/ProjectileTrackingService";
 import { InitialisationService } from "../services/InitialisationService";
 import { AIService, PlayerEntity } from "../services/AIService";

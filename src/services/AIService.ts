@@ -1,5 +1,5 @@
 import { BaseObject } from "../models/BaseObject";
-import { Projectile } from "../models/Projectile2";
+import { Projectile } from "../models/Projectile";
 import { ObjectKey } from "../controllers/game";
 import { ProjectileTrackingService } from "./ProjectileTrackingService";
 

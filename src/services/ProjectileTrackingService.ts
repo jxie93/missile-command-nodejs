@@ -1,4 +1,4 @@
-import { Projectile } from "../models/Projectile2";
+import { Projectile } from "../models/Projectile";
 import { PlayerEntity } from "./AIService";
 
 export class ProjectileTrackingService {

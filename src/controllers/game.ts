@@ -1,12 +1,13 @@
 import * as Phaser from "phaser";
 import { ScreenSizeService } from "../services/ScreenSizeService";
-import { BaseObject } from "../models/BaseObject";
+import { BaseSpriteObject } from "../models/BaseObject";
 import { downsampleRatio } from "../main";
 import { Ship } from "../models/Ship";
 import { Projectile } from "../models/Projectile";
 import { ProjectileTrackingService } from "../services/ProjectileTrackingService";
 import { InitialisationService } from "../services/InitialisationService";
 import { AIService, PlayerEntity } from "../services/AIService";
+import { MatterProjectile } from "../models/MatterProjectile";
 
 export enum ObjectKey {
   playerBase = "playerBase",
@@ -22,14 +23,17 @@ export enum ObjectKey {
 let gameSceneConfig: Phaser.Scenes.Settings.Config = {
   key: 'game',
   physics: {
-      arcade: {
-        gravity: 0,
-        debug: true,
-        setBounds: {
-           width: ScreenSizeService.canvasWidth,
-           height: ScreenSizeService.canvasHeight,
-        }
+    matter: {
+      debug: true
     }
+      // arcade: {
+      //   gravity: 0,
+      //   debug: true,
+      //   setBounds: {
+      //      width: ScreenSizeService.canvasWidth,
+      //      height: ScreenSizeService.canvasHeight,
+      //   }
+      // }
   }
 }
 
@@ -48,6 +52,7 @@ export class Game extends Phaser.Scene {
 
   preload() { //pre-init
     InitialisationService.instance.setup(this)
+    this.matter.world.disableGravity()
   }
 
   setupBaseObjects() {
@@ -55,36 +60,45 @@ export class Game extends Phaser.Scene {
     let centerY = ScreenSizeService.canvasHeight!/2
     this.add.image(centerX, centerY, 
       ObjectKey.background).setScale(downsampleRatio)
-  
-      this.enemyBase = new Ship(this.add.sprite(0, 0, ObjectKey.enemyBase), 0 ,0)
-      this.playerBase = new Ship(this.add.sprite(ScreenSizeService.canvasWidth, ScreenSizeService.canvasHeight, ObjectKey.playerBase), 1, 1)
-  
-      let enemyBaseWidth = this.enemyBase!.sprite!.displayWidth
-      this.enemyBase!.move(enemyBaseWidth/2, enemyBaseWidth/2)
-      this.enemyBase!.setOrigin(0.5, 0.5)
-      this.enemyBase!.setAngle(-45)
-  
-      let playerBaseWidth = this.playerBase!.sprite!.displayWidth
-      this.playerBase!.move(-playerBaseWidth/2, -playerBaseWidth/2)
-      this.playerBase!.setOrigin(0.5, 0.5)
-      this.playerBase!.setAngle(-45)
+
+      this.enemyBase = new Ship(this.matter.world, 0, 0, ObjectKey.enemyBase)
+      this.enemyBase.moveBy(this.enemyBase.displayWidth/2, this.enemyBase.displayHeight*2)
+      this.enemyBase.setAngle(-45)
+      this.enemyBase.setStatic(true)
+
+      this.add.existing(this.enemyBase)
+
+      this.playerBase = new Ship(this.matter.world, ScreenSizeService.canvasWidth, ScreenSizeService.canvasHeight, ObjectKey.playerBase)
+      this.playerBase.moveBy(-this.playerBase.displayWidth*0.75, -this.playerBase.displayHeight*2)
+      this.playerBase.setAngle(-45)
+      this.playerBase.setStatic(true)
+      this.add.existing(this.playerBase)
+
+
   }
 
-  onProjectileRemoved(projectile: Projectile) {
+  onProjectileRemoved(projectile: MatterProjectile) {
     projectile.stop()
   }
 
-  onProjectileCollision() {
+  onWorldCollision() {
     //TODO?
   }
 
   create() {    //init
     console.log("Create")
     this.setupBaseObjects()
-    ProjectileTrackingService.instance.onProjectileRemoved = this.onProjectileRemoved
-    ProjectileTrackingService.instance.onProjectileCollision = this.onProjectileCollision
 
-    AIService.instance.init(this, this.playerBase!, this.enemyBase!)
+    ProjectileTrackingService.instance.onProjectileRemoved = this.onProjectileRemoved
+    // ProjectileTrackingService.instance.onProjectileCollision = this.onProjectileCollision
+
+    // AIService.instance.init(this, this.playerBase!, this.enemyBase!)
+    this.matter.world.on("collisionstart", function (event, bodyA: Phaser.GameObjects.GameObject, bodyB: Phaser.GameObjects.GameObject) {
+      console.log('collision ' + typeof event + ", " + bodyA + ", " + bodyB)
+      if (bodyA as MatterProjectile) {
+        console.log("WORKING - projectile " + (bodyA as MatterProjectile).owner)
+      }
+  })
 
   }
 
@@ -95,11 +109,10 @@ export class Game extends Phaser.Scene {
     if (cursor.isDown && cursor.downX != 0 && cursor.downY != 0) {
       if (this.canFire) {
         return
-      } 
+      }
 
-      var currenMissile = new Projectile(this, this.playerBase!.getPosition().x, this.playerBase!.getPosition().y, ObjectKey.playerMissile,
-      cursor.downX, cursor.downY, PlayerEntity.player, 1000.0, ObjectKey.playerMissileTrail, ObjectKey.explosionParticle1, 250, 3)
-
+      var currenMissile = new MatterProjectile(this.matter.world, this.playerBase!.x - this.playerBase!.displayWidth/4, this.playerBase!.y - this.playerBase!.displayHeight, ObjectKey.playerMissile,
+      cursor.downX, cursor.downY, PlayerEntity.player, 500.0, ObjectKey.playerMissileTrail, ObjectKey.explosionParticle1, 250, 3)
       this.add.existing(currenMissile)
 
       ProjectileTrackingService.instance.addProjectile(currenMissile)

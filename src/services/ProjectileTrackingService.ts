@@ -1,19 +1,20 @@
 import { Projectile } from "../models/Projectile";
 import { PlayerEntity } from "./AIService";
+import { MatterProjectile } from "../models/MatterProjectile";
 
 export class ProjectileTrackingService {
     scene?: Phaser.Scene
 
-    currentProjectiles?: Projectile[]
-    currentColliders?: Phaser.Physics.Arcade.Collider[]
+    currentProjectiles?: MatterProjectile[]
+    // currentColliders?: Phaser.Physics.Arcade.Collider[]
 
     static instance = new ProjectileTrackingService()
-    onProjectileRemoved?: (projectile: Projectile) => void //external callback
-    onProjectileCollision?: (projectile: Projectile, collidedObject: any) => void //external callback
+    onProjectileRemoved?: (projectile: MatterProjectile) => void //external callback
+    onProjectileCollision?: (projectile: MatterProjectile, collidedObject: any) => void //external callback
 
     constructor() {
         this.currentProjectiles = new Array()
-        this.currentColliders = new Array()
+        // this.currentColliders = new Array()
     }
 
     init(scene: Phaser.Scene) {
@@ -31,24 +32,24 @@ export class ProjectileTrackingService {
     //     return assets
     // }
 
-    addProjectile(projectile: Projectile) {
+    addProjectile(projectile: MatterProjectile) {
         if (this.currentProjectiles) {
             this.currentProjectiles!.push(projectile)
         }
         document.getElementById("debug")!.innerHTML = ProjectileTrackingService.instance.currentProjectiles!.toString()
 
-        if (this.currentColliders) {
+        // if (this.currentColliders) {
 
             // let collider = this.scene!.physics.add.collider(projectile.asset!, this.getAllCurrentProjectilesAsObjects(), this.onCollision)
             // this.currentColliders!.push(collider)
-        }
+        // }
     }
 
     onCollision(object1: Phaser.GameObjects.GameObject, object2: Phaser.GameObjects.GameObject) {
         // if (object1 instanceof Phaser.Physics.Arcade.Image)
     }
 
-    removeProjectile(projectile: Projectile) {
+    removeProjectile(projectile: MatterProjectile) {
         let index = this.getCurrentProjectiles().indexOf(projectile, 0)
         if (index > -1) {
             this.currentProjectiles!.splice(index, 1)
@@ -85,7 +86,7 @@ export class ProjectileTrackingService {
         }
     }
 
-    getCurrentProjectiles(): Projectile[] {
+    getCurrentProjectiles(): MatterProjectile[] {
         if (this.currentProjectiles) {
             return this.currentProjectiles
         } else {

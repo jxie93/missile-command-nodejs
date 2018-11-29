@@ -1,32 +1,22 @@
 import { GameObjects, Scene } from "phaser";
 import { downsampleRatio } from "../main";
+import { ObjectKey } from "../controllers/game";
 
 // Wrapper class for sprite
-export class BaseObject {
+export class BaseSpriteObject extends GameObjects.Sprite {
 
-    sprite?: GameObjects.Sprite
-
-    constructor(sprite: GameObjects.Sprite, originX: number = 0.5, originY: number = 0.5) {
-        this.sprite = sprite
-        sprite.setOrigin(originX, originY)
-        sprite.setScale(downsampleRatio)
+    constructor(scene: Phaser.Scene, x: number, y: number, assetKey: ObjectKey) {
+        super(scene, x, y, assetKey)
+        this.setScale(downsampleRatio)
     }
 
     move(x: number, y: number) {
-        this.sprite!.x += x
-        this.sprite!.y += y
+        this.x += x
+        this.y += y
     }
 
     getPosition(): Phaser.Geom.Point {
-        return new Phaser.Geom.Point(this.sprite!.x, this.sprite!.y)
-    }
-
-    setOrigin(x: number, y: number) {
-        this.sprite!.setOrigin(x, y)
-    }
-
-    setAngle(angle: number) {
-        this.sprite!.angle = angle
+        return new Phaser.Geom.Point(this.x, this.y)
     }
 
 

@@ -76,6 +76,8 @@ export class Game extends Phaser.Scene {
     ProjectileTrackingService.instance.onProjectileCollision = this.onProjectileCollision
 
     AIService.instance.init(this, this.playerBase!, this.enemyBase!)
+    AIService.instance.attackFrequency = 0.2
+    AIService.instance.attackDivergence = 800
 
   }
 

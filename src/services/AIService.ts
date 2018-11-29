@@ -15,6 +15,9 @@ export class AIService {
     playerBase?: Ship
     enemyBase?: Ship
 
+    attackFrequency: number = 0.1
+    attackDivergence: number = 1000
+
     static instance = new AIService()
 
     init(scene: Phaser.Scene, playerBase: Ship, enemyBase: Ship) {
@@ -32,7 +35,7 @@ export class AIService {
     //main AI logic loop every 1s
     onTimerEvent() {
         console.log("WORKING - AI timer event")
-        this.performBasicAttack(1000, 1)
+        this.performBasicAttack(this.attackDivergence, this.attackFrequency)
     }
 
     //accuracy - max divergence
@@ -51,7 +54,7 @@ export class AIService {
 
         var enemyMissile = new Projectile(this.scene!, this.enemyBase!.x, this.enemyBase!.y, ObjectKey.enemyMissile, 
         targetDestination.x + finalDivergeance, targetDestination.y + finalDivergeance, PlayerEntity.enemy,
-        100.0, ObjectKey.enemyMissileTrail, ObjectKey.explosionParticle1, 250, 2)
+        10.0, ObjectKey.enemyMissileTrail, ObjectKey.explosionParticle1, 250, 2)
         this.scene!.add.existing(enemyMissile)
         
         ProjectileTrackingService.instance.addProjectile(enemyMissile)

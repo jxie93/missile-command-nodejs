@@ -1,8 +1,11 @@
-import { ProjectileType } from "./Projectile";
 import { PlayerEntity } from "../services/AIService";
 import { ObjectKey } from "../controllers/game";
 import { downsampleRatio } from "../main";
 import { ScreenSizeService } from "../services/ScreenSizeService";
+
+export enum ProjectileType {
+    //TODO
+}
 
 export class Projectile extends Phaser.Physics.Arcade.Image {
     angleOffset: number = 90

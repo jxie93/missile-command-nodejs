@@ -12,7 +12,7 @@ export class BaseObject {
         sprite.setScale(downsampleRatio)
     }
 
-    move(x: number, y: number) {
+    moveBy(x: number, y: number) {
         this.sprite!.x += x
         this.sprite!.y += y
     }

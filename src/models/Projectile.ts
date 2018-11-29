@@ -1,7 +1,7 @@
 import { PlayerEntity } from "../services/AIService";
-import { ObjectKey } from "../controllers/game";
 import { downsampleRatio } from "../main";
 import { ScreenSizeService } from "../services/ScreenSizeService";
+import { ObjectKey } from "../services/InitialisationService";
 
 export enum ProjectileType {
     //TODO
@@ -27,6 +27,7 @@ export class Projectile extends Phaser.Physics.Arcade.Image {
         trailParticleAsset?: ObjectKey, explosionParticleAsset?: ObjectKey, explosionLinger?: number, blastMultiplier?: number) {
         super(scene, sourceX, sourceY, assetKey)
 
+        scene.add.existing(this)
         scene.physics.add.existing(this)
 
         this.owner = owner

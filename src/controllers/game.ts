@@ -5,19 +5,8 @@ import { downsampleRatio } from "../main";
 import { Ship } from "../models/Ship";
 import { Projectile } from "../models/Projectile";
 import { ProjectileTrackingService } from "../services/ProjectileTrackingService";
-import { InitialisationService } from "../services/InitialisationService";
+import { InitialisationService, ObjectKey } from "../services/InitialisationService";
 import { AIService, PlayerEntity } from "../services/AIService";
-
-export enum ObjectKey {
-  playerBase = "playerBase",
-  enemyBase = "enemyBase",
-  enemyMissile = "enemyMissile",
-  playerMissile = "playerMissile",
-  background = "background",
-  playerMissileTrail = "playerMissileTrail",
-  enemyMissileTrail = "enemyMissileTrail",
-  explosionParticle1 = "explosionParticle1"
-}
 
 let gameSceneConfig: Phaser.Scenes.Settings.Config = {
   key: 'game',
@@ -55,19 +44,21 @@ export class Game extends Phaser.Scene {
     let centerY = ScreenSizeService.canvasHeight!/2
     this.add.image(centerX, centerY, 
       ObjectKey.background).setScale(downsampleRatio)
-  
-      this.enemyBase = new Ship(this.add.sprite(0, 0, ObjectKey.enemyBase), 0 ,0)
-      this.playerBase = new Ship(this.add.sprite(ScreenSizeService.canvasWidth, ScreenSizeService.canvasHeight, ObjectKey.playerBase), 1, 1)
-  
-      let enemyBaseWidth = this.enemyBase!.sprite!.displayWidth
-      this.enemyBase!.move(enemyBaseWidth/2, enemyBaseWidth/2)
-      this.enemyBase!.setOrigin(0.5, 0.5)
-      this.enemyBase!.setAngle(-45)
-  
-      let playerBaseWidth = this.playerBase!.sprite!.displayWidth
-      this.playerBase!.move(-playerBaseWidth/2, -playerBaseWidth/2)
-      this.playerBase!.setOrigin(0.5, 0.5)
-      this.playerBase!.setAngle(-45)
+      
+      this.enemyBase = new Ship(this, [ObjectKey.enemyBaseFront, ObjectKey.enemyBaseFrontMid, ObjectKey.enemyBaseBackMid, ObjectKey.enemyBaseBack], 0, 0)
+      let enemyBaseWidth = this.enemyBase.displayWidth
+      let enemyBaseHeight = this.enemyBase.displayHeight
+      this.enemyBase.setAngle(-45)
+      this.enemyBase.moveTo(enemyBaseWidth*0.25, enemyBaseHeight*3.25)
+
+      this.playerBase = new Ship(this, [ObjectKey.playerBaseFront, ObjectKey.playerBaseFrontMid, ObjectKey.playerBaseBackMid, ObjectKey.playerBaseBack], 
+        0, 0)
+      let playerBaseWidth = this.playerBase.displayWidth
+      let playerBaseHeight = this.playerBase.displayHeight
+      this.playerBase.moveTo(ScreenSizeService.canvasWidth - playerBaseWidth, 
+        ScreenSizeService.canvasHeight - playerBaseHeight)
+      this.playerBase.setAngle(-45)
+      this.playerBase.moveBy(playerBaseWidth/4.5, 0)
   }
 
   onProjectileRemoved(projectile: Projectile) {
@@ -97,11 +88,8 @@ export class Game extends Phaser.Scene {
         return
       } 
 
-      var currenMissile = new Projectile(this, this.playerBase!.getPosition().x, this.playerBase!.getPosition().y, ObjectKey.playerMissile,
+      var currenMissile = new Projectile(this, this.playerBase!.x, this.playerBase!.y, ObjectKey.playerMissile,
       cursor.downX, cursor.downY, PlayerEntity.player, 1000.0, ObjectKey.playerMissileTrail, ObjectKey.explosionParticle1, 250, 3)
-
-      this.add.existing(currenMissile)
-
       ProjectileTrackingService.instance.addProjectile(currenMissile)
 
       this.canFire = true

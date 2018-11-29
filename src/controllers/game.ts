@@ -47,7 +47,7 @@ export class Game extends Phaser.Scene {
   }
 
   preload() { //pre-init
-    InitialisationService.instance.loadAssetsForScene(this)
+    InitialisationService.instance.setup(this)
   }
 
   setupBaseObjects() {
@@ -74,13 +74,19 @@ export class Game extends Phaser.Scene {
     projectile.stop()
   }
 
+  onProjectileCollision() {
+    //TODO?
+  }
+
   create() {    //init
     console.log("Create")
     this.setupBaseObjects()
     ProjectileTrackingService.instance.onProjectileRemoved = this.onProjectileRemoved
+    ProjectileTrackingService.instance.onProjectileCollision = this.onProjectileCollision
+
     AIService.instance.init(this, this.playerBase!, this.enemyBase!)
 
-    
+    // this.physics.add.collider()
   }
 
   canFire: boolean = false

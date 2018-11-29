@@ -1,13 +1,14 @@
 import { ScreenSizeService } from "./ScreenSizeService";
 import { downsampleRatio } from "../main";
 import { ObjectKey } from "../controllers/game";
+import { ProjectileTrackingService } from "./ProjectileTrackingService";
 
 export class InitialisationService {
 
     scene?: Phaser.Scene
     static instance = new InitialisationService()
 
-    loadAssetsForScene(scene: Phaser.Scene) {
+    setup(scene: Phaser.Scene) {
         this.scene = scene
         scene.load.setBaseURL("/assets")
         scene.load.image(ObjectKey.background, "bg-1.png")
@@ -24,6 +25,8 @@ export class InitialisationService {
         scene.load.image(ObjectKey.explosionParticle1, "particles/explosion_1.png")
 
         // scene.load.atlas("flares", "particles/flares.png", "particles/flares.json")
+
+        ProjectileTrackingService.instance.init(this.scene)
     }
 
 }

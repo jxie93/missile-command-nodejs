@@ -2,15 +2,34 @@ import { Projectile} from "../models/Projectile";
 import { PlayerEntity } from "./AIService";
 
 export class ProjectileTrackingService {
+    scene?: Phaser.Scene
+
     currentProjectiles?: Projectile[]
+    currentColliders?: Phaser.Physics.Arcade.Collider[]
+
     static instance = new ProjectileTrackingService()
-    onProjectileRemoved?: (projectile: Projectile) => void //callback
+    onProjectileRemoved?: (projectile: Projectile) => void //external callback
+    onProjectileCollision?: (projectile: Projectile, collidedObject: any) => void //external callback
 
     constructor() {
         this.currentProjectiles = new Array()
+        this.currentColliders = new Array()
     }
 
-    //TODO remove projectiles not in playfield
+    init(scene: Phaser.Scene) {
+        this.scene = scene
+    }
+
+    private getAllCurrentProjectilesAsObjects(): Phaser.Physics.Arcade.Image[] {
+        var assets = new Array()
+        let currentProjectiles = (this.currentProjectiles != null) ? this.currentProjectiles : []
+        for (var i = 0; i<currentProjectiles.length; i++) {
+            if (currentProjectiles[i].asset) {
+                assets.push(currentProjectiles[i].asset)
+            }
+        }
+        return assets
+    }
 
     addProjectile(projectile: Projectile) {
         if (this.currentProjectiles) {
@@ -18,6 +37,15 @@ export class ProjectileTrackingService {
         }
         document.getElementById("debug")!.innerHTML = ProjectileTrackingService.instance.currentProjectiles!.toString()
 
+        if (this.currentColliders) {
+
+            // let collider = this.scene!.physics.add.collider(projectile.asset!, this.getAllCurrentProjectilesAsObjects(), this.onCollision)
+            // this.currentColliders!.push(collider)
+        }
+    }
+
+    onCollision(object1: Phaser.GameObjects.GameObject, object2: Phaser.GameObjects.GameObject) {
+        // if (object1 instanceof Phaser.Physics.Arcade.Image)
     }
 
     removeProjectile(projectile: Projectile) {

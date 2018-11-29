@@ -3,6 +3,11 @@ import { Projectile } from "../models/Projectile";
 import { ObjectKey } from "../controllers/game";
 import { ProjectileTrackingService } from "./ProjectileTrackingService";
 
+export enum PlayerEntity {
+    player = "player",
+    enemy = "enemy"
+}
+
 export class AIService {
     scene?: Phaser.Scene
     timerEvent?: Phaser.Time.TimerEvent
@@ -45,7 +50,7 @@ export class AIService {
     
         var enemyMissile = new Projectile(this.scene!,
           this.scene!.physics.add.image(this.enemyBase!.getPosition().x, this.enemyBase!.getPosition().y, ObjectKey.enemyMissile),
-          targetDestination.x + finalDivergeance, targetDestination.y + finalDivergeance, 
+          targetDestination.x + finalDivergeance, targetDestination.y + finalDivergeance, PlayerEntity.enemy,
           100.0, ObjectKey.enemyMissileTrail, ObjectKey.explosionParticle1)
 
         

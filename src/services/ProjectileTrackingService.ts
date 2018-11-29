@@ -1,4 +1,5 @@
 import { Projectile} from "../models/Projectile";
+import { PlayerEntity } from "./AIService";
 
 export class ProjectileTrackingService {
     currentProjectiles?: Projectile[]
@@ -41,11 +42,17 @@ export class ProjectileTrackingService {
         }
     }
 
-    removeExpiredProjectiles() {
+    removeExpiredProjectiles(playerOnly: boolean) {
         for (var i = 0; i<this.getCurrentProjectiles().length; i++) {
             let projectile = this.currentProjectiles![i]
             if (projectile.hasReachedDestination()) {
-                this.removeProjectile(projectile)
+                if (playerOnly) {
+                    if (projectile.owner! == PlayerEntity.player) {
+                        this.removeProjectile(projectile)
+                    }
+                } else {
+                    this.removeProjectile(projectile)
+                }
             }
         }
     }

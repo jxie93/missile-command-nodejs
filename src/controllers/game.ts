@@ -6,7 +6,7 @@ import { Ship } from "../models/Ship";
 import { Projectile } from "../models/Projectile";
 import { ProjectileTrackingService } from "../services/ProjectileTrackingService";
 import { InitialisationService } from "../services/InitialisationService";
-import { AIService } from "../services/AIService";
+import { AIService, PlayerEntity } from "../services/AIService";
 
 export enum ObjectKey {
   playerBase = "playerBase",
@@ -95,7 +95,7 @@ export class Game extends Phaser.Scene {
 
       var currenMissile = new Projectile(this,
         this.physics.add.image(this.playerBase!.getPosition().x, this.playerBase!.getPosition().y, ObjectKey.playerMissile),
-        cursor.downX, cursor.downY, 1000.0, ObjectKey.playerMissileTrail, ObjectKey.explosionParticle1)
+        cursor.downX, cursor.downY, PlayerEntity.player, 1000.0, ObjectKey.playerMissileTrail, ObjectKey.explosionParticle1,)
 
       ProjectileTrackingService.instance.addProjectile(currenMissile)
 
@@ -103,7 +103,7 @@ export class Game extends Phaser.Scene {
     }
 
     ProjectileTrackingService.instance.removeOutOfBoundsProjectiles()
-    ProjectileTrackingService.instance.removeExpiredProjectiles()
+    ProjectileTrackingService.instance.removeExpiredProjectiles(true)
 
     if (cursor.justUp) {
       this.canFire = false

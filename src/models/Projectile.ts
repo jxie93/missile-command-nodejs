@@ -1,64 +1,81 @@
 import { downsampleRatio } from "../main";
 import { ScreenSizeService } from "../services/ScreenSizeService";
 import { ObjectKey } from "../controllers/game";
+import { PlayerEntity } from "../services/AIService";
+
+export enum ProjectileType {
+    //TODO
+}
 
 export class Projectile {
 
     scene?: Phaser.Scene
     asset?: Phaser.Physics.Arcade.Image
-    assetOffset: number = 90
+    assetAngleOffset: number = 90
+
+    type?: ProjectileType //TODO
+    owner?: PlayerEntity
 
     source: Phaser.Geom.Point = new Phaser.Geom.Point(0, 0)
     destination: Phaser.Geom.Point = new Phaser.Geom.Point(0, 0)
-
     accelerationFactor: number = 1.0 //defined magnitude
     vector: Phaser.Math.Vector2 = new Phaser.Math.Vector2(0, 0) //normalised
 
     trailEmitter?: Phaser.GameObjects.Particles.ParticleEmitter
     explosionEmitter?: Phaser.GameObjects.Particles.ParticleEmitter
+    explosionLinger?: number
 
     constructor(scene: Phaser.Scene, asset: Phaser.Physics.Arcade.Image, 
-        destinationX: number, destinationY: number, accelModifier: number,
-        trailParticleAsset: ObjectKey, explosionParticleAsset: ObjectKey) {
+        destinationX: number, destinationY: number, owner: PlayerEntity, accelModifier?: number,
+        trailParticleAsset?: ObjectKey, explosionParticleAsset?: ObjectKey, explosionLinger?: number) {
         this.scene = scene
         this.asset = asset
+        this.owner = owner
+        this.explosionLinger = explosionLinger
         asset.setScale(downsampleRatio)
 
         this.source = new Phaser.Geom.Point(asset.x, asset.y)
         this.destination = new Phaser.Geom.Point(destinationX, destinationY)
-        this.accelerationFactor = accelModifier
+        this.accelerationFactor = accelModifier!
 
         this.setAngle(this.angleToDestination())
         this.accelerateToDestination()
 
-        this.asset!.setOrigin(0.5, 1)
-        this.createTrailEmitter(trailParticleAsset)
-        this.createExplosionEmitter(explosionParticleAsset)
+        // this.asset!.setOrigin(0.5, 1)
+        this.createTrailEmitter(trailParticleAsset!)
+        this.createExplosionEmitter(explosionParticleAsset!)
 
         this.setHitBox()
     }
 
-    private setHitBox() {
+    private setHitBox(radius?: number) {
         //TODO get a good fit
         var longestSide = this.asset!.width
         if (this.asset!.height > longestSide) {
             longestSide = this.asset!.height
         }
-        this.asset!.setSize(longestSide, longestSide)
+        // console.log("WORKING origins? " + this.asset!.originX + "," + this.asset!.originY + " display " + this.asset!.displayOriginX + "," + this.asset!.displayOriginY)
+        // this.assetOffset
+        if (radius) {
+            this.asset!.setCircle(longestSide)
+        } else {
+            this.asset!.setCircle(longestSide)
+        }
     }
 
     //creates and attaches a trail particle system that follows the asset
     private createTrailEmitter(assetKey: ObjectKey) {
         var particles = this.scene!.add.particles(assetKey)
         this.trailEmitter = particles.createEmitter({
-            lifespan: 500,
+            lifespan: 1000,
             speed: { min: 0, max: 500 },
             angle: this.getAngle(),
-            scale: { start: 1, end: 0 },
+            scale: { start: 0.25, end: 0 },
             quantity: 1,
-            blendMode: Phaser.BlendModes.ADD
+            blendMode: Phaser.BlendModes.ADD,
           })
         this.trailEmitter!.startFollow(this.asset!)
+        this.trailEmitter!.followOffset = this.vector!.scale(-40)
     }
 
     //creates and attaches a explosion particle system, but inactive 
@@ -134,15 +151,23 @@ export class Projectile {
             this.explosionEmitter!.active = true
             this.explosionEmitter!.explode(50, this.asset!.x, this.asset!.y)
         }
-        this.asset!.destroy(true)
+        //explosion lingers for small time
+        let waitTime = 0
+        if (this.explosionLinger) {
+            waitTime = this.explosionLinger
+        }
+        setTimeout(() => {
+            this.setHitBox(500) //TODO
+            this.asset!.destroy(true)
+        }, waitTime);
     }
 
     setAngle(angle: number) {         //offset because initial asset is pointing upwards
-        this.asset!.angle = angle + this.assetOffset
+        this.asset!.angle = angle + this.assetAngleOffset
     }
 
     getAngle(): number {
-        return this.asset!.angle + this.assetOffset
+        return this.asset!.angle + this.assetAngleOffset
     }
 
 }

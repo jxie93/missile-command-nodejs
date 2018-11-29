@@ -111,7 +111,7 @@ export class Projectile {
         this.asset!.setAcceleration(vec.x*this.accelerationFactor, vec.y*this.accelerationFactor)
     } 
 
-    hasReachedDestination(error: number = 5.0): boolean {
+    hasReachedDestination(error: number = 3.0): boolean {
         //TODO some error margin dependent on accel factor?
         let deltaX = Math.abs(this.asset!.x - this.destination.x)
         let deltaY = Math.abs(this.asset!.y - this.destination.y)   

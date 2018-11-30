@@ -24,6 +24,7 @@ let gameSceneConfig: Phaser.Scenes.Settings.Config = {
 
 export class Game extends Phaser.Scene {
 
+  static gameRef?: Phaser.Game
   enemyBase?: Ship
   playerBase?: Ship
 
@@ -61,19 +62,9 @@ export class Game extends Phaser.Scene {
       this.playerBase.moveBy(playerBaseWidth/4.5, 0)
   }
 
-  onProjectileRemoved(projectile: Projectile) {
-    projectile.stop()
-  }
-
-  onProjectileCollision() {
-    //TODO?
-  }
-
   create() {    //init
     console.log("Create")
     this.setupBaseObjects()
-    ProjectileTrackingService.instance.onProjectileRemoved = this.onProjectileRemoved
-    ProjectileTrackingService.instance.onProjectileCollision = this.onProjectileCollision
 
     AIService.instance.init(this, this.playerBase!, this.enemyBase!)
     AIService.instance.attackFrequency = 0.2
@@ -91,7 +82,7 @@ export class Game extends Phaser.Scene {
       } 
 
       var currenMissile = new Projectile(this, this.playerBase!.x, this.playerBase!.y, ObjectKey.playerMissile,
-      cursor.downX, cursor.downY, PlayerEntity.player, 1000.0, ObjectKey.playerMissileTrail, ObjectKey.explosionParticle1, 250, 3)
+      cursor.downX, cursor.downY, PlayerEntity.player, 1000.0, ObjectKey.playerMissileTrail, ObjectKey.explosionParticle1, 250, 2.5)
       ProjectileTrackingService.instance.addProjectile(currenMissile)
 
       this.canFire = true

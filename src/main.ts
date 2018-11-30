@@ -27,6 +27,7 @@ class Main extends Phaser.Game {
     // this.scene.add("boot", Boot, false);
     this.scene.add("preload", Preload, false);
     this.scene.add("game", Game, false);
+    Game.gameRef = this
 
     this.scene.start("preload");
 

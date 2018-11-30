@@ -55,6 +55,7 @@ export class AIService {
         var enemyMissile = new Projectile(this.scene!, this.enemyBase!.x, this.enemyBase!.y, ObjectKey.enemyMissile, 
         targetDestination.x + finalDivergeance, targetDestination.y + finalDivergeance, PlayerEntity.enemy,
         10.0, ObjectKey.enemyMissileTrail, ObjectKey.explosionParticle1, 250, 2)
+        // enemyMissile.hitPoints = 2
         this.scene!.add.existing(enemyMissile)
         
         ProjectileTrackingService.instance.addProjectile(enemyMissile)

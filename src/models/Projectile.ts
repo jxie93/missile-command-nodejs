@@ -11,11 +11,15 @@ export class Projectile extends Phaser.Physics.Arcade.Image {
     angleOffset: number = 90
 
     owner?: PlayerEntity
+    collider?: Phaser.Physics.Arcade.Collider //reference only
 
     source: Phaser.Geom.Point = new Phaser.Geom.Point(0, 0)
     destination: Phaser.Geom.Point = new Phaser.Geom.Point(0, 0)
     accelerationFactor: number = 1.0 //defined magnitude
     vector: Phaser.Math.Vector2 = new Phaser.Math.Vector2(0, 0) //normalised
+
+    hitPoints: number = 1
+    damage: number = 1
 
     trailEmitter?: Phaser.GameObjects.Particles.ParticleEmitter
     trailAmount: number = 100 //initial trail amount
@@ -49,6 +53,12 @@ export class Projectile extends Phaser.Physics.Arcade.Image {
         this.setHitBox()
     }
 
+    removeCollider() {
+        if (this.collider) {
+            this.scene.physics.world.removeCollider(this.collider)
+        }
+    }
+
     private setHitBox(multiplier?: number) {
         //TODO get a good fit
         var longestSide = this.width
@@ -79,7 +89,6 @@ export class Projectile extends Phaser.Physics.Arcade.Image {
                 blendMode: Phaser.BlendModes.ADD,
             })
         this.trailEmitter!.startFollow(this)
-        //TODO offset
         this.trailEmitter!.followOffset = this.vector!.scale(-40)
     }
 
@@ -146,7 +155,7 @@ export class Projectile extends Phaser.Physics.Arcade.Image {
         this.setAcceleration(0, 0)
         this.setVelocity(0, 0)
         this.explode()
-        this.stopTrailEmitter()
+        // this.stopTrailEmitter()
     }
 
     stopTrailEmitter() {
@@ -156,6 +165,7 @@ export class Projectile extends Phaser.Physics.Arcade.Image {
     }
 
     explode() {
+        this.stopTrailEmitter()
         this.setHitBox(this.explosionRadiusMultiplier)
 
         this.setVisible(false)

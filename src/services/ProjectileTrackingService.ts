@@ -47,25 +47,28 @@ export class ProjectileTrackingService {
         projectile.collider = collider
     }
 
+    //object1 is guaranteed to be a Projectile owned by the player
     onProjectileCollision(object1: Phaser.GameObjects.GameObject, object2: Phaser.GameObjects.GameObject) {
         let projectile1 = object1 as Projectile
         projectile1.explode()
         projectile1.removeCollider()
 
-        if (object2.type == ModelType.ShipSection) {
-            let shipSection = object2 as ShipSection
-            shipSection.onCollision()
-            return
+        switch (object2.type) {
+            case ModelType.ShipSection:
+                let shipSection = object2 as ShipSection
+                shipSection.onCollision()
+                return
+            case ModelType.Projectile:
+                let projectile2 = object2 as Projectile
+                if (projectile2.hitPoints > projectile1.damage) {
+                    projectile2.hitPoints--
+                    projectile1.explosionLinger = 0
+                } else {
+                    projectile2.explode()
+                }
+                break
         }
-
-        let projectile2 = object2 as Projectile        
-
-        if (projectile2.hitPoints > projectile1.damage) {
-            projectile2.hitPoints--
-            projectile1.explosionLinger = 0
-        } else {
-            projectile2.explode()
-        }
+        
     }
 
     removeProjectile(projectile: Projectile) {

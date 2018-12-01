@@ -155,10 +155,11 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
     }
 
     stop() {
-        this.setAcceleration(0, 0)
-        this.setVelocity(0, 0)
-        this.explode()
-        // this.stopTrailEmitter()
+        if (this) {
+            this.setAcceleration(0, 0)
+            this.setVelocity(0, 0)
+            this.explode()
+        }
     }
 
     stopTrailEmitter() {

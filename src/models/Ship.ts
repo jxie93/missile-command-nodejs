@@ -92,8 +92,24 @@ export class ShipSection extends Phaser.Physics.Arcade.Sprite {
 
     }
 
+    //simple alpha change
+    alphaFlash(times: number, durationMs: number) {
+        let self = this
+        var count = 0
+        let interval = setInterval(function() {
+            count++
+            self.alpha = 0.5
+            setTimeout(() => {
+                self.alpha = 1.0
+            }, durationMs/2);
+            if (count >= times) {
+                clearInterval(interval)
+            }
+        }, durationMs)
+    }
+
     onCollision() {
-        //TODO
+        this.alphaFlash(3, 100)
         console.log("WORKING - ship section collision")
     }
 }

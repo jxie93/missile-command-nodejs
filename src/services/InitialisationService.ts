@@ -30,7 +30,7 @@ export class InitialisationService {
 
     setup(scene: Phaser.Scene) {
         this.scene = scene
-        scene.load.setBaseURL("/assets")
+        scene.load.setBaseURL("./assets")
         scene.load.image(ObjectKey.background, "bg-1.png")
 
         ////////// objects

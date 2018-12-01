@@ -1,7 +1,7 @@
 import { PlayerEntity } from "../services/AIService";
 import { downsampleRatio } from "../main";
 import { ScreenSizeService } from "../services/ScreenSizeService";
-import { ObjectKey } from "../services/InitialisationService";
+import { ObjectKey, ModelType } from "../services/InitialisationService";
 
 export enum ProjectileType {
     //TODO
@@ -52,6 +52,8 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
         this.createExplosionEmitter(explosionParticleAsset!)
 
         this.setHitBox()
+
+        this.type = ModelType.Projectile
     }
 
     removeCollider() {

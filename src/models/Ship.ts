@@ -1,15 +1,13 @@
 import { BaseObject } from "./BaseObject";
 import { downsampleRatio } from "../main";
-import { ObjectKey } from "../services/InitialisationService";
+import { ObjectKey, ModelType } from "../services/InitialisationService";
+import { PlayerEntity } from "../services/AIService";
 
 export class Ship {// wrapper for Phaser.GameObjects.Container
-    private self?: Phaser.GameObjects.Container //self reference
+    self?: Phaser.GameObjects.Container //self reference
 
-    // front?: Phaser.Physics.Arcade.Sprite
-    // frontMid?: Phaser.Physics.Arcade.Sprite
-    // backMid?: Phaser.Physics.Arcade.Sprite
-    // back?: Phaser.Physics.Arcade.Sprite
     sections?: Phaser.Physics.Arcade.Sprite[]
+    owner?: PlayerEntity
 
     //center origin
     x: number = 0
@@ -18,13 +16,9 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
     displayHeight: number = 0
 
     //laid out from left to right
-    constructor(scene: Phaser.Scene, sectionKeys: ObjectKey[], x: number, y: number) {
-        let front = new Phaser.Physics.Arcade.Sprite(scene, x, y, sectionKeys[0])
-        let frontMid = new Phaser.Physics.Arcade.Sprite(scene, front.width*downsampleRatio + front.x, y, sectionKeys[1])
-        let backMid = new Phaser.Physics.Arcade.Sprite(scene, frontMid.width*downsampleRatio + frontMid.x, y, sectionKeys[2])
-        let back = new Phaser.Physics.Arcade.Sprite(scene, backMid.width*downsampleRatio + backMid.x, y, sectionKeys[3])
-
+    constructor(scene: Phaser.Scene, sectionKeys: ObjectKey[], x: number, y: number, owner: PlayerEntity) {
         this.sections = new Array()
+        this.owner = owner
 
         for(var s = 0; s<sectionKeys.length; s++) {
             var offsetX = 0
@@ -32,8 +26,10 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
                 offsetX = this.sections[s - 1].width*downsampleRatio + this.sections[s - 1].x
             }
             let currentSection = new Phaser.Physics.Arcade.Sprite(scene, x + offsetX, y, sectionKeys[s])
+            currentSection.type = ModelType.ShipSection
             currentSection.setScale(downsampleRatio)
             scene.physics.add.existing(currentSection)
+            currentSection.setImmovable(true)
             this.sections.push(currentSection)
             
             this.displayWidth += currentSection.displayWidth
@@ -75,4 +71,8 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
         this.y = this.self!.y
     }
 
+}
+
+export class ShipSection extends Phaser.Physics.Arcade.Sprite {
+    //TODO
 }

@@ -1,6 +1,8 @@
 import { Projectile } from "../models/Projectile";
 import { PlayerEntity } from "./AIService";
 import { GameObjects } from "phaser";
+import { ShipTrackingService } from "./ShipTrackingService";
+import { ModelType } from "./InitialisationService";
 
 // service for managing fired projectiles and collision for them
 export class ProjectileTrackingService {
@@ -25,28 +27,43 @@ export class ProjectileTrackingService {
             this.currentProjectiles!.push(projectile)
         }
 
+        this.setupProjectileCollision(projectile)
+    }
+
+    setupProjectileCollision(projectile: Projectile) {
         let projectileOwner = projectile.owner
-        //player projectiles can only collide with enemy and vice versa
-        let collisionProjectiles = projectileOwner == PlayerEntity.enemy ? 
+        //player projectiles can only collide with enemy's and vice versa
+        let collisionProjectiles: GameObjects.GameObject[] = projectileOwner == PlayerEntity.enemy ? 
             this.getCurrentProjectilesOwnedBy(PlayerEntity.player) : this.getCurrentProjectilesOwnedBy(PlayerEntity.enemy)
-        let collider = this.scene!.physics.add.collider(projectile, collisionProjectiles, this.onProjectileCollision)
+        
+        //player projectiles can only collide with enemy ships and vice versa
+        let collisionShipSections: GameObjects.GameObject[] = projectileOwner == PlayerEntity.enemy ?
+            ShipTrackingService.instance.getCurrentShipSections(PlayerEntity.player) : ShipTrackingService.instance.getCurrentShipSections(PlayerEntity.enemy)
+
+        let finalCollisionObjects = collisionProjectiles.concat(collisionShipSections)
+
+        let collider = this.scene!.physics.add.collider(projectile, finalCollisionObjects, this.onProjectileCollision)
         projectile.collider = collider
     }
 
     onProjectileCollision(object1: Phaser.GameObjects.GameObject, object2: Phaser.GameObjects.GameObject) {
         let projectile1 = object1 as Projectile
-        let projectile2 = object2 as Projectile
+        projectile1.explode()
+        projectile1.removeCollider()
+
+        if (object2.type == ModelType.ShipSection) {
+            console.log("WORKING - todo")
+            return
+        }
+
+        let projectile2 = object2 as Projectile        
 
         if (projectile2.hitPoints > projectile1.damage) {
             projectile2.hitPoints--
             projectile1.explosionLinger = 0
-            projectile1.explode()
         } else {
-            projectile1.explode()
             projectile2.explode()
         }
-
-        projectile1.removeCollider()
     }
 
     removeProjectile(projectile: Projectile) {

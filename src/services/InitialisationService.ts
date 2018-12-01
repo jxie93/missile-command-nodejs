@@ -23,6 +23,11 @@ export enum ObjectKey {
     explosionParticle1 = "explosionParticle1"
   }
 
+  export enum ModelType {
+    ShipSection = "ShipSection",
+    Projectile = "Projectile"
+  }
+
 export class InitialisationService {
 
     scene?: Phaser.Scene

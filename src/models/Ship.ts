@@ -3,12 +3,13 @@ import { downsampleRatio } from "../main";
 import { ObjectKey } from "../services/InitialisationService";
 
 export class Ship {// wrapper for Phaser.GameObjects.Container
-    private self?: Phaser.GameObjects.Container
+    private self?: Phaser.GameObjects.Container //self reference
 
-    front?: Phaser.Physics.Arcade.Sprite
-    frontMid?: Phaser.Physics.Arcade.Sprite
-    backMid?: Phaser.Physics.Arcade.Sprite
-    back?: Phaser.Physics.Arcade.Sprite
+    // front?: Phaser.Physics.Arcade.Sprite
+    // frontMid?: Phaser.Physics.Arcade.Sprite
+    // backMid?: Phaser.Physics.Arcade.Sprite
+    // back?: Phaser.Physics.Arcade.Sprite
+    sections?: Phaser.Physics.Arcade.Sprite[]
 
     //center origin
     x: number = 0
@@ -22,34 +23,34 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
         let frontMid = new Phaser.Physics.Arcade.Sprite(scene, front.width*downsampleRatio + front.x, y, sectionKeys[1])
         let backMid = new Phaser.Physics.Arcade.Sprite(scene, frontMid.width*downsampleRatio + frontMid.x, y, sectionKeys[2])
         let back = new Phaser.Physics.Arcade.Sprite(scene, backMid.width*downsampleRatio + backMid.x, y, sectionKeys[3])
-                
-        this.front = front
-        this.frontMid = frontMid
-        this.backMid = backMid
-        this.back = back
 
-        scene.physics.add.existing(this.front)
-        scene.physics.add.existing(this.frontMid)
-        scene.physics.add.existing(this.backMid)
-        scene.physics.add.existing(this.back)
+        this.sections = new Array()
 
-        this.front.setScale(downsampleRatio)
-        this.frontMid.setScale(downsampleRatio)
-        this.backMid.setScale(downsampleRatio)
-        this.back.setScale(downsampleRatio)
+        for(var s = 0; s<sectionKeys.length; s++) {
+            var offsetX = 0
+            if (s > 0) {
+                offsetX = this.sections[s - 1].width*downsampleRatio + this.sections[s - 1].x
+            }
+            let currentSection = new Phaser.Physics.Arcade.Sprite(scene, x + offsetX, y, sectionKeys[s])
+            currentSection.setScale(downsampleRatio)
+            scene.physics.add.existing(currentSection)
+            this.sections.push(currentSection)
+            
+            this.displayWidth += currentSection.displayWidth
+            this.displayHeight = currentSection.displayHeight
+        }
 
+        this.self = scene.add.container(x, y, this.sections)
         this.setupHitBoxes()
-        this.self = scene.add.container(x, y, [front, frontMid, backMid, back])
-
-        this.displayWidth = front!.displayWidth + frontMid!.displayWidth + backMid!.displayWidth + back!.displayWidth
-        this.displayHeight = front!.displayHeight
     }
 
     setupHitBoxes() {
-        this.front!.setCircle(this.front!.displayWidth*2, -this.front!.displayHeight/2, -this.front!.displayWidth/2)
-        this.frontMid!.setCircle(this.frontMid!.displayWidth*2, -this.frontMid!.displayHeight/2, -this.frontMid!.displayWidth/2)
-        this.backMid!.setCircle(this.backMid!.displayWidth*2, -this.backMid!.displayHeight/2, -this.backMid!.displayWidth/2)
-        this.back!.setCircle(this.back!.displayWidth*2, -this.back!.displayHeight/2, -this.back!.displayWidth/2)
+        if (this.sections) {
+            for(var s = 0; s<this.sections.length; s++) {
+                let currentSection = this.sections[s]
+                currentSection.setCircle(currentSection.displayWidth*2, -currentSection.displayHeight/2, -currentSection.displayWidth/2)
+            }
+        }
     }
 
     moveBy(x: number, y: number) {

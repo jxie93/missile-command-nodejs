@@ -7,7 +7,8 @@ export enum ProjectileType {
     //TODO
 }
 
-export class Projectile extends Phaser.Physics.Arcade.Image {
+export class Projectile extends Phaser.Physics.Arcade.Sprite {
+
     angleOffset: number = 90
 
     owner?: PlayerEntity

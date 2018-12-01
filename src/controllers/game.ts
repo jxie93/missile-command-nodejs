@@ -2,7 +2,7 @@ import * as Phaser from "phaser";
 import { ScreenSizeService } from "../services/ScreenSizeService";
 import { BaseObject } from "../models/BaseObject";
 import { downsampleRatio } from "../main";
-import { Ship } from "../models/Ship";
+import { Ship, ShipIdentifier } from "../models/Ship";
 import { Projectile } from "../models/Projectile";
 import { ProjectileTrackingService } from "../services/ProjectileTrackingService";
 import { InitialisationService, ObjectKey } from "../services/InitialisationService";
@@ -47,14 +47,15 @@ export class Game extends Phaser.Scene {
     this.add.image(centerX, centerY, 
       ObjectKey.background).setScale(downsampleRatio)
       
-      this.enemyBase = new Ship(this, [ObjectKey.enemyBaseFront, ObjectKey.enemyBaseFrontMid, ObjectKey.enemyBaseBackMid, ObjectKey.enemyBaseBack], 0, 0, PlayerEntity.enemy)
+      this.enemyBase = new Ship(this, [ObjectKey.enemyBaseFront, ObjectKey.enemyBaseFrontMid, ObjectKey.enemyBaseBackMid, ObjectKey.enemyBaseBack],
+         0, 0, PlayerEntity.enemy, ShipIdentifier.enemyBase)
       let enemyBaseWidth = this.enemyBase.displayWidth
       let enemyBaseHeight = this.enemyBase.displayHeight
       this.enemyBase.setAngle(-45)
-      this.enemyBase.moveTo(enemyBaseWidth*0.25, enemyBaseHeight*3.25)
+      this.enemyBase.moveBy(enemyBaseWidth*0.25, enemyBaseHeight*2.5)
 
       this.playerBase = new Ship(this, [ObjectKey.playerBaseFront, ObjectKey.playerBaseFrontMid, ObjectKey.playerBaseBackMid, ObjectKey.playerBaseBack], 
-        0, 0, PlayerEntity.player)
+        0, 0, PlayerEntity.player, ShipIdentifier.playerBase)
       let playerBaseWidth = this.playerBase.displayWidth
       let playerBaseHeight = this.playerBase.displayHeight
       this.playerBase.moveTo(ScreenSizeService.canvasWidth - playerBaseWidth, 

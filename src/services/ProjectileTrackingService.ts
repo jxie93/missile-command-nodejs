@@ -3,6 +3,7 @@ import { PlayerEntity } from "./AIService";
 import { GameObjects } from "phaser";
 import { ShipTrackingService } from "./ShipTrackingService";
 import { ModelType } from "./InitialisationService";
+import { ShipSection } from "../models/Ship";
 
 // service for managing fired projectiles and collision for them
 export class ProjectileTrackingService {
@@ -52,7 +53,8 @@ export class ProjectileTrackingService {
         projectile1.removeCollider()
 
         if (object2.type == ModelType.ShipSection) {
-            console.log("WORKING - todo")
+            let shipSection = object2 as ShipSection
+            shipSection.onCollision()
             return
         }
 

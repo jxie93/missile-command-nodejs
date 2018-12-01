@@ -3,13 +3,11 @@ import { downsampleRatio } from "../main";
 import { ProjectileTrackingService } from "./ProjectileTrackingService";
 
 export enum ObjectKey {
-    playerBase = "playerBase",
     playerBaseFront = "playerBaseFront",
     playerBaseFrontMid = "playerBaseFrontMid",
     playerBaseBackMid = "playerBaseBackMid",
     playerBaseBack = "playerBaseBack",
 
-    enemyBase = "enemyBase",
     enemyBaseFront = "enemyBaseFront",
     enemyBaseFrontMid = "enemyBaseFrontMid",
     enemyBaseBackMid = "enemyBaseBackMid",
@@ -39,8 +37,6 @@ export class InitialisationService {
         scene.load.image(ObjectKey.background, "bg-1.png")
 
         ////////// objects
-        scene.load.image(ObjectKey.playerBase, "player_base.png")
-        scene.load.image(ObjectKey.enemyBase, "enemy_base.png")
         scene.load.image(ObjectKey.enemyMissile, "enemy_missile_basic.png")
         scene.load.image(ObjectKey.playerMissile, "player_missile_basic.png")
 

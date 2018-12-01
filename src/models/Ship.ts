@@ -3,11 +3,18 @@ import { downsampleRatio } from "../main";
 import { ObjectKey, ModelType } from "../services/InitialisationService";
 import { PlayerEntity } from "../services/AIService";
 
+export enum ShipIdentifier {
+    playerBase = "playerBase",
+    enemyBase = "enemyBase"
+}
+
+//base ship
 export class Ship {// wrapper for Phaser.GameObjects.Container
     self?: Phaser.GameObjects.Container //self reference
 
-    sections?: Phaser.Physics.Arcade.Sprite[]
+    sections?: ShipSection[]
     owner?: PlayerEntity
+    id?: ShipIdentifier
 
     //center origin
     x: number = 0
@@ -16,17 +23,19 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
     displayHeight: number = 0
 
     //laid out from left to right
-    constructor(scene: Phaser.Scene, sectionKeys: ObjectKey[], x: number, y: number, owner: PlayerEntity) {
+    constructor(scene: Phaser.Scene, sectionKeys: ObjectKey[], x: number, y: number, owner: PlayerEntity, id: ShipIdentifier) {
         this.sections = new Array()
         this.owner = owner
+        this.id = id
 
         for(var s = 0; s<sectionKeys.length; s++) {
             var offsetX = 0
             if (s > 0) {
                 offsetX = this.sections[s - 1].width*downsampleRatio + this.sections[s - 1].x
             }
-            let currentSection = new Phaser.Physics.Arcade.Sprite(scene, x + offsetX, y, sectionKeys[s])
+            let currentSection = new ShipSection(scene, x + offsetX, y, sectionKeys[s], this)
             currentSection.type = ModelType.ShipSection
+            
             currentSection.setScale(downsampleRatio)
             scene.physics.add.existing(currentSection)
             currentSection.setImmovable(true)
@@ -44,7 +53,8 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
         if (this.sections) {
             for(var s = 0; s<this.sections.length; s++) {
                 let currentSection = this.sections[s]
-                currentSection.setCircle(currentSection.displayWidth*2, -currentSection.displayHeight/2, -currentSection.displayWidth/2)
+                let longestSide = currentSection.displayWidth > currentSection.displayHeight ? currentSection.displayWidth : currentSection.displayHeight
+                currentSection.setCircle(longestSide*2, -longestSide/1.5, -longestSide/2)
             }
         }
     }
@@ -74,5 +84,16 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
 }
 
 export class ShipSection extends Phaser.Physics.Arcade.Sprite {
-    //TODO
+    parent?: Ship
+
+    constructor(scene: Phaser.Scene, x: number, y: number, assetKey: ObjectKey, parent: Ship) {
+        super(scene, x, y, assetKey)
+        this.parent = parent
+
+    }
+
+    onCollision() {
+        //TODO
+        console.log("WORKING - ship section collision")
+    }
 }

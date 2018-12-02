@@ -16,6 +16,8 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
     owner?: PlayerEntity
     id?: ShipIdentifier
 
+    totalHitPoints: number = 0 //total of each section added up
+
     //center origin
     x: number = 0
     y: number = 0
@@ -23,7 +25,7 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
     displayHeight: number = 0
 
     //laid out from left to right
-    constructor(scene: Phaser.Scene, sectionKeys: ObjectKey[], x: number, y: number, owner: PlayerEntity, id: ShipIdentifier) {
+    constructor(scene: Phaser.Scene, sectionKeys: ObjectKey[], sectionHP: number[], x: number, y: number, owner: PlayerEntity, id: ShipIdentifier) {
         this.sections = new Array()
         this.owner = owner
         this.id = id
@@ -33,7 +35,8 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
             if (s > 0) {
                 offsetX = this.sections[s - 1].width*downsampleRatio + this.sections[s - 1].x
             }
-            let currentSection = new ShipSection(scene, x + offsetX, y, sectionKeys[s], this)
+
+            let currentSection = new ShipSection(scene, x + offsetX, y, sectionKeys[s], this, sectionHP[s])
             currentSection.type = ModelType.ShipSection
             
             currentSection.setScale(downsampleRatio)
@@ -43,6 +46,8 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
             
             this.displayWidth += currentSection.displayWidth
             this.displayHeight = currentSection.displayHeight
+
+            this.totalHitPoints += currentSection.hitPoints
         }
 
         this.self = scene.add.container(x, y, this.sections)
@@ -86,10 +91,33 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
 export class ShipSection extends Phaser.Physics.Arcade.Sprite {
     parent?: Ship
 
-    constructor(scene: Phaser.Scene, x: number, y: number, assetKey: ObjectKey, parent: Ship) {
-        super(scene, x, y, assetKey)
-        this.parent = parent
+    hitPoints = 0
+    damageKeys: string[] = []
+    baseKey?: ObjectKey
 
+    constructor(scene: Phaser.Scene, x: number, y: number, assetKey: ObjectKey, parent: Ship, maxHP: number) {
+        super(scene, x, y, assetKey + "hp" + maxHP)
+        this.parent = parent
+        this.hitPoints = maxHP
+        this.baseKey = assetKey
+        //WARNING baseKey doesn't actually exist, it's only used for concat
+
+        this.createDamageSprites(scene)
+    }
+
+    //animation keys (eg. basehp-anim1, basehp-anim2) created for assets (eg. basehp1, basehp2)
+    createDamageSprites(scene: Phaser.Scene) { //as single frame animation
+        for (var h = 0; h<=this.hitPoints; h++) {
+            let animKey = this.baseKey + "hp-anim" + h
+            scene.anims.remove(animKey)
+            scene.anims.create({
+                key: animKey,
+                frames: [
+                    { key: (this.baseKey + "hp" + h) } as AnimationFrameConfig
+                ],
+            })
+            this.damageKeys.push(animKey)
+        }
     }
 
     //simple alpha change
@@ -109,7 +137,13 @@ export class ShipSection extends Phaser.Physics.Arcade.Sprite {
     }
 
     onCollision() {
-        this.alphaFlash(3, 100)
-        console.log("WORKING - ship section collision")
+        if (this.hitPoints > 0) {
+            this.alphaFlash(3, 100)
+            this.hitPoints--
+            this.parent!.totalHitPoints--
+            this.play(this.damageKeys[this.hitPoints]) //damageKeys are 0 indexed
+        } else {
+            //already dead - do something?
+        }
     }
 }

@@ -56,8 +56,8 @@ export class Game extends Phaser.Scene {
 
       let enemyBaseWidth = this.enemyBase.displayWidth
       let enemyBaseHeight = this.enemyBase.displayHeight
-      this.enemyBase.setAngle(-45)
-      this.enemyBase.moveBy(enemyBaseWidth*0.25, enemyBaseHeight*2.5)
+      this.enemyBase.setAngle(-30)
+      this.enemyBase.moveBy(enemyBaseWidth*0.25, enemyBaseHeight*1.75)
 
       this.playerBase = new Ship(this, 
         [ObjectKey.playerBaseFront,
@@ -70,8 +70,8 @@ export class Game extends Phaser.Scene {
       let playerBaseHeight = this.playerBase.displayHeight
       this.playerBase.moveTo(ScreenSizeService.canvasWidth - playerBaseWidth, 
         ScreenSizeService.canvasHeight - playerBaseHeight)
-      this.playerBase.setAngle(-45)
-      this.playerBase.moveBy(playerBaseWidth/4.5, 0)
+      this.playerBase.setAngle(-30)
+      this.playerBase.moveBy(playerBaseWidth/6, playerBaseHeight/2)
 
       ShipTrackingService.instance.addShip(this.enemyBase)
       ShipTrackingService.instance.addShip(this.playerBase)

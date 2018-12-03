@@ -59,7 +59,7 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
             for(var s = 0; s<this.sections.length; s++) {
                 let currentSection = this.sections[s]
                 let longestSide = currentSection.displayWidth > currentSection.displayHeight ? currentSection.displayWidth : currentSection.displayHeight
-                currentSection.setCircle(longestSide*2, -longestSide/1.5, -longestSide/2)
+                currentSection.setCircle(longestSide*1.4, -longestSide/2, 0)
             }
         }
     }
@@ -136,9 +136,17 @@ export class ShipSection extends Phaser.Physics.Arcade.Sprite {
         }, durationMs)
     }
 
+    alphaFlashAllSections(times: number, durationMs: number) {
+        if (this.parent && this.parent.sections) {
+            for (var s = 0; s<this.parent!.sections!.length; s++) {
+                this.parent.sections[s].alphaFlash(times, durationMs)
+            } 
+        }
+    }
+
     onCollision() {
         if (this.hitPoints > 0) {
-            this.alphaFlash(3, 100)
+            this.alphaFlashAllSections(3, 100)
             this.hitPoints--
             this.parent!.totalHitPoints--
             this.play(this.damageKeys[this.hitPoints]) //damageKeys are 0 indexed

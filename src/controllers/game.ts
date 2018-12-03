@@ -45,7 +45,7 @@ export class Game extends Phaser.Scene {
     let centerX = ScreenSizeService.canvasWidth!/2
     let centerY = ScreenSizeService.canvasHeight!/2
     this.add.image(centerX, centerY, 
-      ObjectKey.background).setScale(downsampleRatio)
+      ObjectKey.background).setScale(0.5)
       
       this.enemyBase = new Ship(this, 
         [ObjectKey.enemyBaseFront,
@@ -84,7 +84,7 @@ export class Game extends Phaser.Scene {
     AIService.instance.init(this, this.playerBase!, this.enemyBase!)
     AIService.instance.attackFrequency = 0.2
     AIService.instance.attackDivergence = 800
-
+  
   }
 
   canFire: boolean = false

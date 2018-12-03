@@ -92,7 +92,7 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
                 blendMode: Phaser.BlendModes.ADD,
             })
         this.trailEmitter!.startFollow(this)
-        this.trailEmitter!.followOffset = this.vector!.scale(-40)
+        this.trailEmitter!.followOffset = this.vector!.scale(-this.displayHeight/2)
     }
 
     updateDistanceTravelled() {

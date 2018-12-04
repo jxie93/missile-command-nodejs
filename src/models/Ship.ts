@@ -11,26 +11,31 @@ export enum ShipIdentifier {
 //base ship
 export class Ship {// wrapper for Phaser.GameObjects.Container
     self?: Phaser.GameObjects.Container //self reference
+    scene?: Phaser.Scene //useful reference
 
     sections?: ShipSection[]
     owner?: PlayerEntity
     id?: ShipIdentifier
 
     totalHitPoints: number = 0 //total of each section added up
+    hardpointsPrimary: Phaser.Math.Vector2[] //represents points where attacks could originate
 
-    //center origin
-    x: number = 0
-    y: number = 0
+    //approximations
+    startX: number = 0
+    startY: number = 0
+
     displayWidth: number = 0
     displayHeight: number = 0
 
     //laid out from left to right
     constructor(scene: Phaser.Scene, sectionKeys: ObjectKey[], sectionHP: number[], x: number, y: number, owner: PlayerEntity, id: ShipIdentifier) {
         this.sections = new Array()
+        this.hardpointsPrimary = new Array()
         this.owner = owner
         this.id = id
+        this.scene = scene
 
-        for(var s = 0; s<sectionKeys.length; s++) {
+        for (var s = 0; s<sectionKeys.length; s++) {
             var offsetX = 0
             if (s > 0) {
                 offsetX = this.sections[s - 1].width*downsampleRatio + this.sections[s - 1].x
@@ -60,8 +65,49 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
                 let currentSection = this.sections[s]
                 let longestSide = currentSection.displayWidth > currentSection.displayHeight ? currentSection.displayWidth : currentSection.displayHeight
                 currentSection.setCircle(longestSide*1.4, -longestSide/2, 0)
+                currentSection.hitBoxRadius = longestSide*1.4
             }
         }
+    }
+
+    //default implementation - 1 hard point on tangent per section
+    setupHardpoints() {
+        // var graphics = this.scene!.add.graphics()
+        // graphics.fillStyle(0xffff00, 1);
+        this.hardpointsPrimary = new Array()
+        if (!this.sections) { return }
+        for (var i = 0; i<this.sections.length; i++) {
+            let tangent2d = this.getCircleHitboxTangentForSection(this.sections[i], 0.4, 
+                this.owner == PlayerEntity.player ? true : false) //which direction the tangent should face
+            this.hardpointsPrimary.push(tangent2d)
+            // graphics.fillCircle(tangent2d.x, tangent2d.y, 10) //debug
+        }
+    }
+
+    getRandomPrimaryHardpoint(): Phaser.Math.Vector2 {
+        var result = new Phaser.Math.Vector2()
+        if (this.hardpointsPrimary) {
+            result = this.hardpointsPrimary[Math.floor(Math.random() * this.hardpointsPrimary.length)] 
+        }
+        return result
+    }
+
+    //find the point on the circle hitbox tangent at current angle
+    getCircleHitboxTangentForSection(shipSection: ShipSection, factor: number = 1, reverse: boolean): Phaser.Math.Vector2 {
+        var result = new Phaser.Math.Vector2()
+        if (this.self && shipSection.center) {
+            let currentAngle = this.self.angle * Math.PI / 180
+
+            let signX = (Math.sin(currentAngle) > 0 && Math.cos(currentAngle) < 0) ||
+            (Math.sin(currentAngle) < 0 && Math.cos(currentAngle) < 0) ? -1 : 1
+            let signY = (Math.sin(currentAngle) < 0 && Math.cos(currentAngle) > 0) ||
+            (Math.sin(currentAngle) < 0 && Math.cos(currentAngle) < 0) ? -1 : 1
+            let reverseSign = reverse ? -1 : 1
+
+            result.x = shipSection.center.x + (shipSection.hitBoxRadius * Math.cos(currentAngle) * reverseSign * signX) * factor
+            result.y = shipSection.center.y + (shipSection.hitBoxRadius * Math.sin(currentAngle) * reverseSign * signY) * factor
+        }
+        return result
     }
 
     moveBy(x: number, y: number) {
@@ -82,8 +128,21 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
     }
 
     updateSelfPosition() {
-        this.x = this.self!.x
-        this.y = this.self!.y
+        this.startX = this.self!.x
+        this.startY = this.self!.y
+        this.updateSectionCenters()
+        this.setupHardpoints()
+    }
+
+    updateSectionCenters() {
+        if (this.sections && this.sections && this.self) {
+            let transformMatrix = this.self.getWorldTransformMatrix()
+            for (var s = 0; s<this.sections.length; s++) {
+                let transformedPoint = new Phaser.Math.Vector2()
+                transformMatrix.transformPoint(this.sections[s].x, this.sections[s].y, transformedPoint)
+                this.sections[s].center = transformedPoint
+            }
+        }
     }
 
 }
@@ -94,6 +153,9 @@ export class ShipSection extends Phaser.Physics.Arcade.Sprite {
     hitPoints = 0
     damageKeys: string[] = []
     baseKey?: ObjectKey
+
+    hitBoxRadius: number = 0
+    center?: Phaser.Math.Vector2
 
     constructor(scene: Phaser.Scene, x: number, y: number, assetKey: ObjectKey, parent: Ship, maxHP: number) {
         super(scene, x, y, assetKey + "hp" + maxHP)

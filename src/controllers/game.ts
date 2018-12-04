@@ -2,7 +2,7 @@ import * as Phaser from "phaser";
 import { ScreenSizeService } from "../services/ScreenSizeService";
 import { BaseObject } from "../models/BaseObject";
 import { downsampleRatio } from "../main";
-import { Ship, ShipIdentifier } from "../models/Ship";
+import { Ship, ShipIdentifier, ShipSection } from "../models/Ship";
 import { Projectile } from "../models/Projectile";
 import { ProjectileTrackingService } from "../services/ProjectileTrackingService";
 import { InitialisationService, ObjectKey } from "../services/InitialisationService";
@@ -94,9 +94,10 @@ export class Game extends Phaser.Scene {
     if (cursor.isDown && cursor.downX != 0 && cursor.downY != 0) {
       if (this.canFire) {
         return
-      } 
+      }
 
-      var currenMissile = new Projectile(this, this.playerBase!.x, this.playerBase!.y, ObjectKey.playerMissile,
+      let randomPlayerHardpoint = this.playerBase!.getRandomPrimaryHardpoint()
+      var currenMissile = new Projectile(this, randomPlayerHardpoint.x, randomPlayerHardpoint.y, ObjectKey.playerMissile,
       cursor.downX, cursor.downY, PlayerEntity.player, 200.0, ObjectKey.playerMissileTrail, ObjectKey.explosionParticle1, 250, 2.5)
       ProjectileTrackingService.instance.addProjectile(currenMissile)
 

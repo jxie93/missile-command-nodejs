@@ -46,13 +46,14 @@ export class AIService {
             return
         }
 
-        let targetDestination = new Phaser.Math.Vector2(this.playerBase!.x, this.playerBase!.y)
+        let targetDestination = new Phaser.Math.Vector2(this.playerBase!.startX, this.playerBase!.startY)
 
         let randomDivergence = Math.random()*maxDivergence
         let varianceSign = Math.random() > 0.5 ? 1 : -1 //which direction to diverge in
         let finalDivergeance = randomDivergence * varianceSign
 
-        var enemyMissile = new Projectile(this.scene!, this.enemyBase!.x, this.enemyBase!.y, ObjectKey.enemyMissile, 
+        let randomEnemyHardpoint = this.enemyBase!.getRandomPrimaryHardpoint()
+        var enemyMissile = new Projectile(this.scene!, randomEnemyHardpoint.x, randomEnemyHardpoint.y, ObjectKey.enemyMissile, 
         targetDestination.x + finalDivergeance, targetDestination.y + finalDivergeance, PlayerEntity.enemy,
         10.0, ObjectKey.enemyMissileTrail, ObjectKey.explosionParticle1, 250, 2)
         // enemyMissile.hitPoints = 2

@@ -15,7 +15,7 @@ let gameSceneConfig: Phaser.Scenes.Settings.Config = {
   physics: {
       arcade: {
         gravity: 0,
-        debug: true,
+        // debug: true,
         setBounds: {
            width: ScreenSizeService.canvasWidth,
            height: ScreenSizeService.canvasHeight,
@@ -95,6 +95,13 @@ export class Game extends Phaser.Scene {
 
   canFire: boolean = false
   update() {
+    if (InitialisationService.instance.isGameStopped) { 
+      let result = this.playerBase!.totalHitPoints <= 0 ? "you lose" : "you win"
+      var style = { font: "bold 64px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
+      this.add.text(0, 0, result + ", click refresh to restart game", style)
+      this.scene.pause("game") 
+    }
+
     let cursor = this.input.activePointer
     if (cursor.isDown && cursor.downX != 0 && cursor.downY != 0) {
       if (this.canFire) {

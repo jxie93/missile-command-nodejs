@@ -34,6 +34,7 @@ export enum ObjectKey {
 export class InitialisationService {
 
     scene?: Phaser.Scene
+    isGameStopped: boolean = false
     static instance = new InitialisationService()
 
     setup(scene: Phaser.Scene) {

@@ -1,8 +1,9 @@
 import { BaseObject } from "./BaseObject";
 import { downsampleRatio } from "../main";
-import { ObjectKey, ModelType } from "../services/InitialisationService";
+import { ObjectKey, ModelType, InitialisationService } from "../services/InitialisationService";
 import { PlayerEntity } from "../services/AIService";
 import { HealthBar } from "./HealthBar";
+import { Game } from "phaser";
 
 export enum ShipIdentifier {
     playerBase = "playerBase",
@@ -230,10 +231,16 @@ export class ShipSection extends Phaser.Physics.Arcade.Sprite {
         if (this.hitPoints > 0) {
             this.alphaFlashAllSections(3, 100)
             this.alphaFlashHealthBar(1000)
+            //TODO variable damage
             this.hitPoints--
             this.parent!.totalHitPoints--
             this.play(this.damageKeys[this.hitPoints]) //damageKeys are 0 indexed
-            this.parent!.healthBar!.removeSections(1)
+            this.parent!.healthBar!.removeSections(1) 
+
+            //stop game if either ship runs out of health
+            if (this.parent!.totalHitPoints <= 0) {
+                InitialisationService.instance.isGameStopped = true
+            }
         } else {
             //already dead - do something?
         }

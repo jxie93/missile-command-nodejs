@@ -91,22 +91,49 @@ export class Game extends Phaser.Scene {
     AIService.instance.attackFrequency = 0.2
     AIService.instance.attackDivergence = 800
   
+    //setup reload text
+    var style = { font: "bold 32px Arial", fill: "#fff", boundsAlignH: "right", boundsAlignV: "middle" };
+    this.reloadText = this.add.text(1660, 20, "RELOADING...", style)
+    this.reloadText.setVisible(false)
   }
 
-  canFire: boolean = false
-  update() {
+  tryStopGame() {
     if (InitialisationService.instance.isGameStopped) { 
       let result = this.playerBase!.totalHitPoints <= 0 ? "you lose" : "you win"
       var style = { font: "bold 64px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
       this.add.text(0, 0, result + ", click refresh to restart game", style)
       this.scene.pause("game") 
     }
+  }
+
+  canFire: boolean = false
+  timeOnLastClick: Date = new Date()
+  reloadText?: Phaser.GameObjects.Text
+  reloadTimeMs: number = 1500
+
+  update() {
+    this.tryStopGame()
 
     let cursor = this.input.activePointer
     if (cursor.isDown && cursor.downX != 0 && cursor.downY != 0) {
-      if (this.canFire) {
+      if (this.canFire) { //stop click holding
         return
       }
+
+      //show reload text
+      this.reloadText!.setVisible(true)
+      setTimeout(() => {
+        gameSelf.reloadText!.setVisible(false)
+      }, this.reloadTimeMs);
+
+      //check reloading
+      let justClickedTime = new Date()
+      let timeSinceLast = justClickedTime.getTime() - this.timeOnLastClick.getTime()
+      let gameSelf = this
+      if (timeSinceLast < this.reloadTimeMs) { //1.5s
+        return
+      }
+      this.timeOnLastClick = new Date()
 
       let randomPlayerHardpoint = this.playerBase!.getRandomPrimaryHardpoint()
       var currenMissile = new Projectile(this, randomPlayerHardpoint.x, randomPlayerHardpoint.y, ObjectKey.playerMissile,

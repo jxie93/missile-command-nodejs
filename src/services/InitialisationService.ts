@@ -19,6 +19,11 @@ export enum ObjectKey {
     playerMissileTrail = "playerMissileTrail",
     enemyMissileTrail = "enemyMissileTrail",
     explosionParticle1 = "explosionParticle1",
+
+    hpBlockGreen = "hpBlockGreen",
+    hpBlockRed = "hpBlockRed",
+    hpBlockYellow = "hpBlockYellow",
+    hpBlockEmpty = "hpBlockEmpty"
   }
 
   export enum ModelType {
@@ -41,8 +46,17 @@ export class InitialisationService {
         this.loadPlayerShips(scene)
         this.loadEnemyShips(scene)
         this.loadParticles(scene)
+        this.loadHealthBarBlocks(scene)
 
         ProjectileTrackingService.instance.init(this.scene)
+    }
+
+    loadHealthBarBlocks(scene: Phaser.Scene) {
+        let pathSeg = "healthBar/"
+        scene.load.image(ObjectKey.hpBlockEmpty, pathSeg + "hp_block_empty.png")
+        scene.load.image(ObjectKey.hpBlockGreen, pathSeg + "hp_block_green.png")
+        scene.load.image(ObjectKey.hpBlockYellow, pathSeg + "hp_block_yellow.png")
+        scene.load.image(ObjectKey.hpBlockRed, pathSeg + "hp_block_red.png")
     }
 
     loadProjectiles(scene: Phaser.Scene) {
@@ -52,31 +66,32 @@ export class InitialisationService {
 
     loadPlayerShips(scene: Phaser.Scene) {
         //player base
-        // scene.load.multiatlas(ObjectKey.playerBaseBack, "texturesTest/playerBase_back.json", "texturesTest")
-
+        let pathSeg = "ships/player/"
         for (var i = 0; i<4; i++) {
-            scene.load.image(ObjectKey.playerBaseFront + "hp" + i, "/ships/player/player_base_front_hp" + i + ".png")
-            scene.load.image(ObjectKey.playerBaseFrontMid + "hp" + i, "/ships/player/player_base_frontMid_hp" + i + ".png")
-            scene.load.image(ObjectKey.playerBaseBackMid + "hp" + i, "/ships/player/player_base_backMid_hp" + i + ".png")
-            scene.load.image(ObjectKey.playerBaseBack + "hp" + i, "/ships/player/player_base_back_hp" + i + ".png")
+            scene.load.image(ObjectKey.playerBaseFront + "hp" + i, pathSeg + "player_base_front_hp" + i + ".png")
+            scene.load.image(ObjectKey.playerBaseFrontMid + "hp" + i, pathSeg + "player_base_frontMid_hp" + i + ".png")
+            scene.load.image(ObjectKey.playerBaseBackMid + "hp" + i, pathSeg + "player_base_backMid_hp" + i + ".png")
+            scene.load.image(ObjectKey.playerBaseBack + "hp" + i, pathSeg + "player_base_back_hp" + i + ".png")
         }
     }
 
     loadEnemyShips(scene: Phaser.Scene) {
         //enemy base
+        let pathSeg = "ships/enemy/"
         for (var i = 0; i<4; i++) {
-            scene.load.image(ObjectKey.enemyBaseFront + "hp" + i, "/ships/enemy/enemy_base_front_hp" + i + ".png")
-            scene.load.image(ObjectKey.enemyBaseFrontMid + "hp" + i, "/ships/enemy/enemy_base_frontMid_hp" + i + ".png")
-            scene.load.image(ObjectKey.enemyBaseBackMid + "hp" + i, "/ships/enemy/enemy_base_backMid_hp" + i + ".png")
-            scene.load.image(ObjectKey.enemyBaseBack + "hp" + i, "/ships/enemy/enemy_base_back_hp" + i + ".png")
+            scene.load.image(ObjectKey.enemyBaseFront + "hp" + i, pathSeg + "enemy_base_front_hp" + i + ".png")
+            scene.load.image(ObjectKey.enemyBaseFrontMid + "hp" + i, pathSeg + "enemy_base_frontMid_hp" + i + ".png")
+            scene.load.image(ObjectKey.enemyBaseBackMid + "hp" + i, pathSeg + "enemy_base_backMid_hp" + i + ".png")
+            scene.load.image(ObjectKey.enemyBaseBack + "hp" + i, pathSeg + "enemy_base_back_hp" + i + ".png")
         }
     }
 
     loadParticles(scene: Phaser.Scene) {
         ////////// particles
-        scene.load.image(ObjectKey.playerMissileTrail, "particles/player_missile_trail.png")
-        scene.load.image(ObjectKey.enemyMissileTrail, "particles/enemy_missile_trail.png")
-        scene.load.image(ObjectKey.explosionParticle1, "particles/explosion_1.png")
+        let pathSeg = "particles/"
+        scene.load.image(ObjectKey.playerMissileTrail, pathSeg + "player_missile_trail.png")
+        scene.load.image(ObjectKey.enemyMissileTrail, pathSeg + "enemy_missile_trail.png")
+        scene.load.image(ObjectKey.explosionParticle1, pathSeg + "explosion_1.png")
     }
 
 }

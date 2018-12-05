@@ -8,6 +8,7 @@ import { ProjectileTrackingService } from "../services/ProjectileTrackingService
 import { InitialisationService, ObjectKey } from "../services/InitialisationService";
 import { AIService, PlayerEntity } from "../services/AIService";
 import { ShipTrackingService } from "../services/ShipTrackingService";
+import { HealthBar } from "../models/HealthBar";
 
 let gameSceneConfig: Phaser.Scenes.Settings.Config = {
   key: 'game',
@@ -73,6 +74,11 @@ export class Game extends Phaser.Scene {
       this.playerBase.setAngle(-30)
       this.playerBase.moveBy(playerBaseWidth/6, playerBaseHeight/2)
 
+      var playerHpBar = new HealthBar(this, ObjectKey.hpBlockGreen, 0, this.playerBase, new Phaser.Math.Vector2(-120, -60))
+      playerHpBar.self!.setVisible(false)
+      var enemyHpBar = new HealthBar(this, ObjectKey.hpBlockGreen, 0, this.enemyBase, new Phaser.Math.Vector2(-120, -60))
+      enemyHpBar.self!.setVisible(false)
+
       ShipTrackingService.instance.addShip(this.enemyBase)
       ShipTrackingService.instance.addShip(this.playerBase)
   }
@@ -89,7 +95,6 @@ export class Game extends Phaser.Scene {
 
   canFire: boolean = false
   update() {
-    // console.log("Update")
     let cursor = this.input.activePointer
     if (cursor.isDown && cursor.downX != 0 && cursor.downY != 0) {
       if (this.canFire) {

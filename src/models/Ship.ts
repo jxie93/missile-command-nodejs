@@ -2,6 +2,7 @@ import { BaseObject } from "./BaseObject";
 import { downsampleRatio } from "../main";
 import { ObjectKey, ModelType } from "../services/InitialisationService";
 import { PlayerEntity } from "../services/AIService";
+import { HealthBar } from "./HealthBar";
 
 export enum ShipIdentifier {
     playerBase = "playerBase",
@@ -23,9 +24,13 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
     //approximations
     startX: number = 0
     startY: number = 0
+    endX: number = 0
+    endY: number = 0
 
     displayWidth: number = 0
     displayHeight: number = 0
+
+    healthBar?: HealthBar
 
     //laid out from left to right
     constructor(scene: Phaser.Scene, sectionKeys: ObjectKey[], sectionHP: number[], x: number, y: number, owner: PlayerEntity, id: ShipIdentifier) {
@@ -132,6 +137,11 @@ export class Ship {// wrapper for Phaser.GameObjects.Container
         this.startY = this.self!.y
         this.updateSectionCenters()
         this.setupHardpoints()
+        if (this.sections) {
+            let endSection = this.sections[this.sections.length - 1]
+            this.endX = endSection.center!.x
+            this.endY = endSection.center!.y
+        }
     }
 
     updateSectionCenters() {
@@ -198,6 +208,16 @@ export class ShipSection extends Phaser.Physics.Arcade.Sprite {
         }, durationMs)
     }
 
+    alphaFlashHealthBar(durationMs: number) {
+        let self = this
+        let healthBar = self.parent!.healthBar!.self!
+        if (!healthBar) { return }
+        healthBar.setVisible(true)
+        setTimeout(() => {
+            healthBar.setVisible(false)
+        }, durationMs);
+    }
+
     alphaFlashAllSections(times: number, durationMs: number) {
         if (this.parent && this.parent.sections) {
             for (var s = 0; s<this.parent!.sections!.length; s++) {
@@ -209,9 +229,11 @@ export class ShipSection extends Phaser.Physics.Arcade.Sprite {
     onCollision() {
         if (this.hitPoints > 0) {
             this.alphaFlashAllSections(3, 100)
+            this.alphaFlashHealthBar(1000)
             this.hitPoints--
             this.parent!.totalHitPoints--
             this.play(this.damageKeys[this.hitPoints]) //damageKeys are 0 indexed
+            this.parent!.healthBar!.removeSections(1)
         } else {
             //already dead - do something?
         }

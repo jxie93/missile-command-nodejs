@@ -91,10 +91,18 @@ export class Game extends Phaser.Scene {
     AIService.instance.attackFrequency = 0.2
     AIService.instance.attackDivergence = 800
   
+    this.setupText()
+  }
+
+  reloadText?: Phaser.GameObjects.Text
+  ammoCountText?: Phaser.GameObjects.Text
+  setupText() {
     //setup reload text
     var style = { font: "bold 32px Arial", fill: "#fff", boundsAlignH: "right", boundsAlignV: "middle" };
-    this.reloadText = this.add.text(1660, 20, "RELOADING...", style)
+    this.reloadText = this.add.text(1660, 80, "RELOADING...", style)
     this.reloadText.setVisible(false)
+
+    this.ammoCountText = this.add.text(1720, 35, "", style)
   }
 
   tryStopGame() {
@@ -106,49 +114,58 @@ export class Game extends Phaser.Scene {
     }
   }
 
-  canFire: boolean = false
-  timeOnLastClick: Date = new Date()
-  reloadText?: Phaser.GameObjects.Text
-  reloadTimeMs: number = 1500
-
+  isClickDown: boolean = false
+  timeOnLastReload: Date = new Date()
+  reloadTimeMs: number = 2000
+  ammoCount: number = 20
+  maxAmmo: number = 20
   update() {
     this.tryStopGame()
 
+    //reload ammo
+    let timeNow = new Date()
+    let timeSinceLast = timeNow.getTime() - this.timeOnLastReload.getTime()
+    if (this.ammoCount < this.maxAmmo) {
+      if (timeSinceLast > this.reloadTimeMs) {
+        this.ammoCount++
+        this.timeOnLastReload = timeNow
+      }
+    }
+
     let cursor = this.input.activePointer
     if (cursor.isDown && cursor.downX != 0 && cursor.downY != 0) {
-      if (this.canFire) { //stop click holding
+      if (this.isClickDown) { //stop click holding
         return
       }
 
-      //show reload text
-      this.reloadText!.setVisible(true)
+      //out of ammo - show reload text for 1.5s
+      if (this.ammoCount == 0) {
+        this.reloadText!.setVisible(true)
+        return
+      }
+      let gameSelf = this
       setTimeout(() => {
         gameSelf.reloadText!.setVisible(false)
       }, this.reloadTimeMs);
 
-      //check reloading
-      let justClickedTime = new Date()
-      let timeSinceLast = justClickedTime.getTime() - this.timeOnLastClick.getTime()
-      let gameSelf = this
-      if (timeSinceLast < this.reloadTimeMs) { //1.5s
-        return
-      }
-      this.timeOnLastClick = new Date()
 
       let randomPlayerHardpoint = this.playerBase!.getRandomPrimaryHardpoint()
       var currenMissile = new Projectile(this, randomPlayerHardpoint.x, randomPlayerHardpoint.y, ObjectKey.playerMissile,
       cursor.downX, cursor.downY, PlayerEntity.player, 200.0, ObjectKey.playerMissileTrail, ObjectKey.explosionParticle1, 250, 2.5)
       ProjectileTrackingService.instance.addProjectile(currenMissile)
 
-      this.canFire = true
+      this.isClickDown = true
+      this.ammoCount--
     }
+
+    this.ammoCountText!.setText("AMMO: " + this.ammoCount.toString() + (this.ammoCount < this.maxAmmo ? "+" : ""))
 
     ProjectileTrackingService.instance.updateProjectiles()
     ProjectileTrackingService.instance.removeOutOfBoundsProjectiles()
     ProjectileTrackingService.instance.removeExpiredProjectiles(true)
 
     if (cursor.justUp) {
-      this.canFire = false
+      this.isClickDown = false
     }
 
   }

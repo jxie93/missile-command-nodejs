@@ -23,7 +23,10 @@ export enum ObjectKey {
     hpBlockGreen = "hpBlockGreen",
     hpBlockRed = "hpBlockRed",
     hpBlockYellow = "hpBlockYellow",
-    hpBlockEmpty = "hpBlockEmpty"
+    hpBlockEmpty = "hpBlockEmpty",
+
+    reloadBarBg = "reloadBarBg",
+    reloadBarTrack = "reloadBarTrack"
   }
 
   export enum ModelType {
@@ -48,8 +51,14 @@ export class InitialisationService {
         this.loadEnemyShips(scene)
         this.loadParticles(scene)
         this.loadHealthBarBlocks(scene)
+        this.loadReloadBar(scene)
 
         ProjectileTrackingService.instance.init(this.scene)
+    }
+
+    loadReloadBar(scene: Phaser.Scene) {
+        scene.load.image(ObjectKey.reloadBarBg, "reload_bar_background.png")
+        scene.load.image(ObjectKey.reloadBarTrack, "reload_bar_track.png")
     }
 
     loadHealthBarBlocks(scene: Phaser.Scene) {
